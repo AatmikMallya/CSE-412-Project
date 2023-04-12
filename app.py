@@ -1,53 +1,91 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import quoted_name
+from sqlalchemy import Column, Integer, String, Date, func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__, template_folder='Templates')
+bcrypt = Bcrypt(app)
 
 # Configure MySQL Connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@localhost/mydatabase' # Replace with your MySQL database connection details
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/photoshare_database' # Replace with your MySQL database connection details
 db = SQLAlchemy(app)
 
+#######################################
 # Define database models
+#######################################
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    age = db.Column(db.Integer)
+    __tablename__ = quoted_name('Users', quote=True)
+    userId = Column(Integer, primary_key=True)
+    firstName = db.Column(db.String(50), nullable=False)
+    lastName = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    dateOfBirth = db.Column(db.String(10), nullable=False)
+    hometown = db.Column(db.String(100), nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
 
-    def __init__(self, name, age):
-        self.name = name
-        self.age = age
+    def __init__(self, userId, firstName, lastName, email, dateOfBirth, hometown, gender, password):
+        self.userId = userId
+        self.firstName = firstName
+        self.lastName = lastName
+        self.email = email
+        self.dateOfBirth = dateOfBirth
+        self.hometown = hometown
+        self.gender = gender
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
 
-# Render html pages
+
+#######################################
+#  Render html pages
+#######################################
 @app.route('/')
-def index():
+def home_page():
     return render_template('index.html')
 
 @app.route('/register.html', methods=['GET'])
-def registration_form():
+def register_page():
     return render_template('register.html')
 
+@app.route('/profile.html', methods=['GET'])
+def profile_page():
+    return render_template('profile.html')
 
+
+
+#######################################
+#  Queries
+#######################################
+
+# Register user
 @app.route('/register', methods=['POST'])
 def register():
-
     # Get data from request
-    first_name = request.form['first-name']
-    last_name = request.form['last-name']
+    print('ASDFASDF', request.form)
+    firstName = request.form['firstName']
+    lastName = request.form['lastName']
     email = request.form['email']
-    date_of_birth = request.form['dateofbirth']
+    dateOfBirth = request.form['dateOfBirth']
     hometown = request.form['hometown']
     gender = request.form['gender']
     password = request.form['password']
 
+    # Calculate userId
+    max_user_id = db.session.query(func.max(User.userId)).scalar()
+    newUserId = max_user_id + 1 if max_user_id else 1
     
-    # Create a new user object
+    # Create a new User object
+    new_user = User(userId=newUserId, firstName=firstName, lastName=lastName, email=email,
+                    dateOfBirth=dateOfBirth, hometown=hometown, gender=gender, password=password)
 
-    # Add the user object to the session and commit to the database
-    # db.session.add(new_user)
-    # db.session.commit()
+    # Add the new user to the database
+    db.session.add(new_user)
+    db.session.commit()
 
-    return f'{first_name} registered successfully'
+    return f'{firstName} registered successfully'
 
 
 # Login route
@@ -58,14 +96,15 @@ def login():
     password = request.form['password']
 
     # Query User table to check if username and password match
-    user = User.query.filter_by(username=username, password=password).first()
-
-    if user:
-        # Successful login
-        return f"Welcome, {user.username}!"
+    email = request.form['email']
+    password = request.form['password']
+    user = User.query.filter_by(email=email).first()
+    if user and bcrypt.check_password_hash(user.password, password):
+        # Login successful, do something
+        flash('Login successful!', 'success')
+        return redirect('/dashboard')
     else:
-        # Invalid username or password
-        return "Invalid username or password. Please try again."
+        flash('Invalid email or password', 'error')
 
 
 
@@ -74,10 +113,5 @@ def login():
 if __name__ == '__main__':
     app.run(debug=True)
 
-
-
-# index.html
-# register.html
-# profile.html
 
 
