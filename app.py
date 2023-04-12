@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import quoted_name
 from sqlalchemy import Column, Integer, String, Date, func
@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__, template_folder='Templates')
+app.secret_key = 'your_secret_key_here'
 bcrypt = Bcrypt(app)
 
 # Configure MySQL Connection
@@ -43,6 +44,7 @@ class User(db.Model):
 #  Render html pages
 #######################################
 @app.route('/')
+@app.route('/index.html')
 def home_page():
     return render_template('index.html')
 
@@ -92,19 +94,35 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     # Get form data
-    username = request.form['username']
+    email = request.form['email']
     password = request.form['password']
 
     # Query User table to check if username and password match
     email = request.form['email']
     password = request.form['password']
     user = User.query.filter_by(email=email).first()
-    if user and bcrypt.check_password_hash(user.password, password):
-        # Login successful, do something
-        flash('Login successful!', 'success')
-        return redirect('/dashboard')
+    if user:
+        if user and bcrypt.check_password_hash(user.password, password):
+            session['logged_in'] = True
+            session['user_email'] = email
+            flash('Login successful', 'success')  # Flash error message
+        else:
+            flash('Incorrect password', 'error')  # Flash error message
     else:
-        flash('Invalid email or password', 'error')
+        flash('User not found', 'error')  # Flash error message
+    
+    return render_template('index.html', email=email)
+
+
+
+# Logout route
+@app.route('/logout')
+def logout():
+    # Clear session data
+    session.clear()
+
+    return redirect('index.html')
+
 
 
 
