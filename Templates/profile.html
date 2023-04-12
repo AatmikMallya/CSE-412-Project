@@ -13,11 +13,11 @@
 
     <div class="my-albums">
         <h3>My Albums:</h3>
-    </div>
+    </div><br>
 
     <div class="my-friends">
         <h3>My Friends:</h3>
-    </div>
+    </div><br>
 
     <div class="upload-photo">
         <h3>Upload a Photo: </h3>
@@ -28,7 +28,7 @@
             <input type="text" name="tag" required="true"/><br><br>
             <input type="submit" value="Upload Photo"/>
         </form>
-    </div>
+    </div><br>
 
     <div class="create-album">
         <form action ="create_album" method='POST'>
@@ -36,7 +36,7 @@
             <input type ="text" name="album-creation" placeholder="Enter Album Name"/>
             <input type="submit" name="submit" value="Create Album"/>
         </form>
-    </div>
+    </div><br>
 
     <div class="find-friends">
         <form action ="{{url_for('results')}}" method='POST'>
@@ -45,7 +45,7 @@
             <input type ="hidden" value ={{friend_id}} name="hidden" required='true'/>
             <input type="submit" name="submit" value="Find Friends"/>
         </form>
-    </div>
+    </div><br>
 
   </main>
 
