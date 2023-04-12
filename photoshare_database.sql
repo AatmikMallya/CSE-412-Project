@@ -6,7 +6,7 @@ CREATE TABLE Users (
     userId INTEGER PRIMARY KEY,
     firstName TEXT,
     lastName TEXT,
-    email TEXT UNIQUE,
+    email VARCHAR(255) UNIQUE,
     dateOfBirth DATE,
     password TEXT,
     gender TEXT,
