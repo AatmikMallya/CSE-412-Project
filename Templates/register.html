@@ -25,13 +25,16 @@
             <label for="email">Email: </label>
             <input type ="text" name="email" required></label><br>
             <label for="dateofbirth">Date of Birth: </label>
-            <input type ="text" name="dateofbirth" required></label><br>
+            <input type ="date" name="dateofbirth" required><br>
             <label for="hometown">Hometown: </label>
             <input type ="text" name="hometown" required></label><br>
-            <label for="gender">Gender (M/F): </label>
-            <input type ="text" name="gender" required></label><br>
+            <label for="gender">Gender: </label>
+            <label for="gender-male">Male</label>
+            <input type ="radio" id="gender-male" name="gender" value="male" required>
+            <label for="gender-female">Female</label>
+            <input type ="radio" id="gender-female" name="gender" value="female" required><br>
             <label for="gender">Password: </label>
-            <input type ="text" name="password" required></label><br>
+            <input type ="password" name="password" required></label><br>
             <input type="submit" value="Register">
         </form>
     </main>
