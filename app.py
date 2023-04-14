@@ -62,8 +62,9 @@ def register_page():
 @app.route('/profile.html', methods=['GET'])
 def profile_page():
     email = request.args.get('email')
+    friends = get_friends(email)
     rec_friends = get_friend_recs(email)
-    return render_template('profile.html', email=email, rec_friends=rec_friends)
+    return render_template('profile.html', email=email, friends=friends, rec_friends=rec_friends)
 
 
 
@@ -151,6 +152,19 @@ def add_friend():
 
     return render_template(f'profile.html', email=email, friend_success='Friend added!')
 
+def get_friends(email):
+    user = User.query.filter_by(email=email).first()
+
+    query = text('''SELECT Users.userId, Users.firstName, Users.lastName
+                    FROM Users
+                    INNER JOIN Friends
+                    ON Users.userId = Friends.user2Id
+                    WHERE Friends.user1Id = :userId;
+                ''')
+    params = {"userId": user.userId}
+    result = db.session.execute(query, params)
+    friends = [User.query.get(user_id[0]) for user_id in result.fetchall()]
+    return friends
 
 def get_friend_recs(email):
     user = User.query.filter_by(email=email).first()
@@ -162,9 +176,8 @@ def get_friend_recs(email):
                 ''')
     params = {"userId": user.userId}
     result = db.session.execute(query, params)
-    friends = [User.query.get(user_id[0]) for user_id in result.fetchall()]
-    print('kkkkkkk',friends, result)
-    return friends
+    friend_recs = [User.query.get(user_id[0]) for user_id in result.fetchall()]
+    return friend_recs
 
 
 if __name__ == '__main__':
