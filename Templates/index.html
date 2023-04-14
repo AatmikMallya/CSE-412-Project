@@ -13,13 +13,12 @@
             left: 50%;
             transform: translate(-50%, 0);
         }
-        
-        .search h3,
-        .search form {
+
+            .search h3,
+            .search form {
                 display: inline-block;
                 vertical-align: middle;
-
-        }
+            }
 
         .login {
             position: fixed;
@@ -31,6 +30,16 @@
             overflow-y: auto;
         }
 
+        .photo-feed img,
+        .likes-button {
+            display:flex;
+            flex-direction:column;
+        }
+
+        .likes-button, .comments-buttons {
+            display: inline-block;
+            vertical-align: middle;
+        }
     </style>
 </head>
 
@@ -45,6 +54,10 @@
             <form action="search" method="POST">
                 <input name="searchvalue" type="text" id="searchvalue" placeholder="Search for a hashtag" required="required" />
                 <input name="submit" type="submit" value="Search" />
+            </form>
+
+            <form action="popular" method="POST">
+                <input name="submit" type="submit" value="Search most popular" />
             </form>
         </div>
 
@@ -64,14 +77,19 @@
             <h1>{{email}}</h1> <a href="/logout">logout</a>
             {% endif %}
         </div>
-        
+
         {% if email %}
-        <button><a href="profile.html?email={{ email }}"">profile</a></button>
+        <button><a href="profile.html?email={{ email }}" ">profile</a></button>
         {% endif %}
 
 
         <div class="photo-feed">
             <h3>Your Feed:</h3>
+            <form action="photo-feed" method="POST">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png" alt="" width="500" height="500">
+                <input name="submit1" type="submit" value="{{likes}} likes" class="likes-button">
+                <input name="submit2" type="submit" value="{{comments}} likes" class="comments-buttons">
+            </form>
         </div>
 
     </main>
