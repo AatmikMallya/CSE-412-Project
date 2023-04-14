@@ -65,9 +65,9 @@
             {% endif %}
         </div>
         
-        <div class="profile">
-            <input name="submit" type="submit" value="Profile" />
-        </div>
+        {% if email %}
+        <button><a href="profile.html">profile</a></button>
+        {% endif %}
 
 
         <div class="photo-feed">
