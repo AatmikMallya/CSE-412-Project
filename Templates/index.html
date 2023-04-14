@@ -2,40 +2,75 @@
 <html lang="en">
 
 <head>
-  <title>PhotoShare</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+    <title>PhotoShare</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+
+    <style>
+        .search {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+        
+        .search h3,
+        .search form {
+                display: inline-block;
+                vertical-align: middle;
+
+        }
+
+        .login {
+            position: fixed;
+            top: 0;
+            right: 0;
+        }
+
+        .photo-feed {
+            overflow-y: auto;
+        }
+
+    </style>
 </head>
 
 <body>
 
-  <main>
+    <main>
 
-    <h1>Photoshare</h1>
+        <h1>Photoshare</h1>
 
-    <div class="login">
-      
-      {%if not email%}
-        <h3>Log in to your Account: </h3>
-        <form action="login" method="POST">
-            <input name="email" type="text" id="email" placeholder="Enter your Email" required="required"/>
-            <input name="password" type="password" id="password" placeholder="Enter your Password" required="required"/>
-            <input name="submit" type="submit" value="Sign In"/>
-        </form>
-        <a href="register.html">New to PhotoShare? Register here instead!</a>
-      {% endif %}
+        <div class="search">
+            <h3>Search for Photos:</h3>
+            <form action="search" method="POST">
+                <input name="searchvalue" type="text" id="searchvalue" placeholder="Search for a hashtag" required="required" />
+                <input name="submit" type="submit" value="Search" />
+            </form>
+        </div>
 
-      {%if email%}
-        <h1>{{email}}</h1> <a href="/logout">logout</a>
-      {% endif %}
-    </div>
-    
+        <div class="login">
 
-    <div class="photo-feed">
-        <h3>Your Feed:</h3>
-    </div>
+            {%if not email%}
+            <h3>Log in to your Account: </h3>
+            <form action="login" method="POST">
+                <input name="email" type="text" id="email" placeholder="Enter your Email" required="required" />
+                <input name="password" type="password" id="password" placeholder="Enter your Password" required="required" />
+                <input name="submit" type="submit" value="Sign In" />
+            </form>
+            <a href="register.html">New to PhotoShare? Register here instead!</a>
+            {% endif %}
 
-  </main>
+            {%if email%}
+            <h1>{{email}}</h1> <a href="/logout">logout</a>
+            {% endif %}
+        </div>
+
+
+        <div class="photo-feed">
+            <h3>Your Feed:</h3>
+        </div>
+
+    </main>
 
 </body>
 </html>
