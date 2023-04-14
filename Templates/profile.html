@@ -24,6 +24,11 @@
 
     <div class="my-friends">
         <h3>My Friends:</h3>
+        <ul>
+            {% for friend in friends %}
+                <li>{{ friend.firstName }} {{ friend.lastName }}: {{ friend.email }}</li>  <!-- Display the email of each friend of friend -->
+            {% endfor %}
+        </ul>
     </div><br>
 
     <div>
@@ -42,6 +47,12 @@
             <input type="file" name="photo" required="true"/><br><br>
             <label for="caption">Add a Tag(s): </label> <!-- Will need to change tags so people can add multiple-->
             <input type="text" name="tag"/><br><br>
+            <label for="album">Upload to this album: </label>
+            <select id="album_title" name="album_title"> <!-- need to query the DB for album names under the user-->
+                {% for albumName in albums %}
+                  <option value="{{ albumName }}">{{ albumName }}</option>
+                {% endfor %}
+            </select>
             <input type="submit" value="Upload Photo"/>
         </form>
     </div><br>
