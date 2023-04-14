@@ -8,7 +8,13 @@
 </head>
 
 <body>
+
+    <style>
+        h1 {display: flex; justify-content: center; align-items: center;}
+    </style>
+
   <main>
+  <a href="index.html">Back to homepage</a>
 
     <h1>My Profile:</h1>
 
@@ -40,13 +46,22 @@
     </div><br>
 
     <div class="find-friends">
-        <form action ="" method='POST'>
-            <h3>Find your Friends:</h3>
-            <input type ="text" name="friend-email" placeholder="Enter Friend's Email"/>
-            <input type ="hidden" value ={{friend_id}} name="hidden" required='true'/>
-            <input type="submit" name="submit" value="Find Friends"/>
+        <form method="post" action="{{ url_for('add_friend') }}">
+            <h3>Add a friend</h3>
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="text" name="friend_email" placeholder="Enter Friend's Email"/>
+            <input type="submit" name="submit" value="Add friend"/>
         </form>
+        {% if friend_error and not friend_success %}
+            <p color="red">{{friend_error}}</p>
+        {% endif %}
+        {% if friend_success %}
+            <p color="green">{{friend_success}}</p>
+        {% endif %}
     </div><br>
+    {% if email %}
+            <p color="red">{{email}}</p>
+    {% endif %}
 
   </main>
 

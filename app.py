@@ -5,6 +5,7 @@ from sqlalchemy import Column, Integer, String, Date, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask_bcrypt import Bcrypt
+import datetime
 
 app = Flask(__name__, template_folder='Templates')
 app.secret_key = 'your_secret_key_here'
@@ -13,6 +14,7 @@ bcrypt = Bcrypt(app)
 # Configure MySQL Connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/photoshare_database' # Replace with your MySQL database connection details
 db = SQLAlchemy(app)
+
 
 #######################################
 # Define database models
@@ -38,6 +40,11 @@ class User(db.Model):
         self.gender = gender
         self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
+class Friends(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user1Id = db.Column(db.Integer, nullable=False)
+    user2Id = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.date.today())
 
 
 #######################################
@@ -54,12 +61,13 @@ def register_page():
 
 @app.route('/profile.html', methods=['GET'])
 def profile_page():
-    return render_template('profile.html')
+    email = request.args.get('email')
+    return render_template('profile.html', email=email)
 
 
 
 #######################################
-#  Queries
+#  Actions
 #######################################
 
 # Register user
@@ -75,7 +83,7 @@ def register():
     password = request.form['password']
 
     # Check if email already exists
-    if User.query.filter_by(email=email):
+    if User.query.filter_by(email=email).first():
         return render_template('register.html', error='Email already exists')
 
     # Calculate userId
@@ -91,7 +99,6 @@ def register():
     db.session.commit()
 
     return f'{firstName} registered successfully'
-
 
 # Login route
 @app.route('/login', methods=['POST'])
@@ -117,8 +124,6 @@ def login():
     
     return render_template('index.html', email=email)
 
-
-
 # Logout route
 @app.route('/logout')
 def logout():
@@ -127,6 +132,23 @@ def logout():
 
     return redirect('index.html')
 
+# Add friends to the databse
+@app.route('/add_friend', methods=['POST'])
+def add_friend():
+    email = request.form.get('email')
+    friend_email = request.form.get('friend_email')
+
+    user =  User.query.filter_by(email=email).first()
+    friend = User.query.filter_by(email=friend_email).first()
+
+    if not friend:
+        return render_template(f'profile.html', email=email, friend_error='User does not exist')
+    
+    friendship = Friends(user1Id=user.userId, user2Id=friend.userId)
+    db.session.add(friendship)
+    db.session.commit()
+
+    return render_template(f'profile.html', email=email, friend_success='Friend added!')
 
 
 
