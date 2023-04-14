@@ -26,6 +26,15 @@
         <h3>My Friends:</h3>
     </div><br>
 
+    <div>
+        <h3>Recommended Friends:</h3>
+        <ul>
+            {% for friend in rec_friends %}
+                <li>{{ friend.firstName }} {{ friend.lastName }}: {{ friend.email }}</li>  <!-- Display the email of each friend of friend -->
+            {% endfor %}
+        </ul>
+    </div><br>
+
     <div class="upload-photo">
         <h3>Upload a Photo: </h3>
         <form method='POST' enctype="multipart/form-data" action="/photos/upload/{{album}}"> <!-- Will need to change action-->

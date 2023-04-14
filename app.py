@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import quoted_name
-from sqlalchemy import Column, Integer, String, Date, func
+from sqlalchemy import Column, Integer, String, Date, func, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask_bcrypt import Bcrypt
@@ -62,7 +62,8 @@ def register_page():
 @app.route('/profile.html', methods=['GET'])
 def profile_page():
     email = request.args.get('email')
-    return render_template('profile.html', email=email)
+    rec_friends = get_friend_recs(email)
+    return render_template('profile.html', email=email, rec_friends=rec_friends)
 
 
 
@@ -151,7 +152,19 @@ def add_friend():
     return render_template(f'profile.html', email=email, friend_success='Friend added!')
 
 
+def get_friend_recs(email):
+    user = User.query.filter_by(email=email).first()
 
+    query = text('''SELECT DISTINCT friends2.user2Id FROM Friends friends1
+                JOIN Friends friends2 ON friends1.user2Id = friends2.user1Id
+                WHERE friends1.user1Id = :userId
+                AND friends2.user2Id NOT IN (SELECT user2Id FROM Friends WHERE user1Id = :userId)
+                ''')
+    params = {"userId": user.userId}
+    result = db.session.execute(query, params)
+    friends = [User.query.get(user_id[0]) for user_id in result.fetchall()]
+    print('kkkkkkk',friends, result)
+    return friends
 
 
 if __name__ == '__main__':
