@@ -40,23 +40,21 @@
         </ul>
     </div><br>
 
-    <div class="upload-photo">
-        <h3>Upload a Photo: </h3>
-        <form method='POST' enctype="multipart/form-data" action="/photos/upload/{{album}}"> <!-- Will need to change action-->
-            <label for="photo">Select a Photo: </label>
-            <input type="file" name="photo" required="true"/><br><br>
-            <label for="caption">Add a Tag(s): </label> <!-- Will need to change tags so people can add multiple-->
-            <input type="text" name="tag"/><br><br>
-            <input type="submit" value="Upload Photo"/>
-        </form>
-    </div><br>
-
     <div class="create-album">
-        <form action ="create_album" method='POST'>
-            <h3>Create a new Album:</h3>
-            <input type ="text" name="album-creation" placeholder="Enter Album Name"/>
-            <input type="submit" name="submit" value="Create Album"/>
-        </form>
+        <h3>Create a new Album:</h3>
+        <form action="/upload_album" method="post" enctype="multipart/form-data">
+            <label for="album_name">Album Name:</label>
+            <input type="hidden" name="email" value="{{ email }}">
+            <input type="text" name="album_name" id="album_name" required>
+            <br>
+            <label for="photo">Photo:</label>
+            <input type="file" name="photo" id="photo" required>
+            <br>
+            <label for="tags">Tags (space separated):</label>
+            <input type="text" name="tags" id="tags">
+            <br>
+            <input type="submit" value="Upload Album">
+          </form>
     </div><br>
 
     <div class="find-friends">

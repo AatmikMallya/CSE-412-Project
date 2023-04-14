@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask_bcrypt import Bcrypt
 import datetime
+import os
 
 app = Flask(__name__, template_folder='Templates')
 app.secret_key = 'your_secret_key_here'
@@ -45,6 +46,25 @@ class Friends(db.Model):
     user1Id = db.Column(db.Integer, nullable=False)
     user2Id = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.date.today())
+
+class Albums(db.Model):
+    albumId = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    userId = db.Column(db.Integer, db.ForeignKey('Users.userId'), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    creationDate = db.Column(db.Date, nullable=False)
+    photos = db.relationship('Photos', backref='album', cascade='all, delete-orphan', primaryjoin="Albums.albumId == Photos.albumId")
+
+class Photos(db.Model):
+    photoId = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    albumId = db.Column(db.Integer, db.ForeignKey('albums.albumId'), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('Users.userId'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    caption = db.Column(db.String(255))
+    tags = db.relationship('Tags', backref='photo')
+
+class Tags(db.Model):
+    photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId'), primary_key=True)
+    description = db.Column(db.String(255))
 
 
 #######################################
@@ -133,6 +153,55 @@ def logout():
     session.clear()
 
     return redirect('index.html')
+
+@app.route('/upload_album', methods=['POST'])
+def upload_album():
+    email = request.form.get('email')
+    user = User.query.filter_by(email=email).first()
+    # Get the form data from the request
+    album_name = request.form.get('album_name')
+    file = request.files['photo']
+    tags = request.form.get('tags')
+
+    # Check if the file was uploaded
+    if 'photo' not in request.files:
+        return 'No file uploaded', 400
+
+    # Check if the file has a filename
+    if file.filename == '':
+        return 'No file selected', 400
+
+    # Save the file to a temporary location
+    file.save('/tmp/' + file.filename)
+
+    # Create a new Album object
+    album = Albums(userId=user.userId, name=album_name, creationDate=datetime.date.today())
+    db.session.add(album)
+    db.session.commit()
+
+    # Create a new Photo object
+    photo = Photos(albumId=album.albumId, userId=user.userId, date=datetime.date.today(), caption=album_name)
+    db.session.add(photo)
+    db.session.commit()
+
+    # Create Tag objects if tags are provided
+    if tags:
+        tags_list = tags.split(' ')
+        for tag in tags_list:
+            tag_obj = Tags(photoId=photo.photoId, description=tag.strip())
+            db.session.add(tag_obj)
+        db.session.commit()
+
+    # Create a folder for the album with the albumId as the name
+    album_folder = os.path.join('albums', str(album.albumId))
+    os.makedirs(album_folder)
+
+    # Save the file to the album folder with the photoId as the filename
+    file_path = os.path.join(album_folder, f'{photo.photoId}_{file.filename}')
+    file.save(file_path)
+
+    # Return a success message
+    return 'Album uploaded successfully', 200
 
 # Add friends to the databse
 @app.route('/add_friend', methods=['POST'])
