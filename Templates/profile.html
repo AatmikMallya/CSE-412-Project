@@ -24,6 +24,11 @@
 
     <div class="my-friends">
         <h3>My Friends:</h3>
+        <ul>
+            {% for friend in friends %}
+                <li>{{ friend.firstName }} {{ friend.lastName }}: {{ friend.email }}</li>  <!-- Display the email of each friend of friend -->
+            {% endfor %}
+        </ul>
     </div><br>
 
     <div>
