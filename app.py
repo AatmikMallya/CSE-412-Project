@@ -66,7 +66,6 @@ def profile_page():
 @app.route('/register', methods=['POST'])
 def register():
     # Get data from request
-    print('ASDFASDF', request.form)
     firstName = request.form['firstName']
     lastName = request.form['lastName']
     email = request.form['email']
@@ -74,6 +73,10 @@ def register():
     hometown = request.form['hometown']
     gender = request.form['gender']
     password = request.form['password']
+
+    # Check if email already exists
+    if User.query.filter_by(email=email):
+        return render_template('register.html', error='Email already exists')
 
     # Calculate userId
     max_user_id = db.session.query(func.max(User.userId)).scalar()
@@ -101,6 +104,7 @@ def login():
     email = request.form['email']
     password = request.form['password']
     user = User.query.filter_by(email=email).first()
+    print(user)
     if user:
         if user and bcrypt.check_password_hash(user.password, password):
             session['logged_in'] = True

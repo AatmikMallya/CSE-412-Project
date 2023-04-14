@@ -36,6 +36,9 @@
             <label for="gender">Password: </label>
             <input type ="password" name="password" required></label><br>
             <input type="submit" value="Register">
+            {% if error%}
+                <p color="red">{{error}}</p>
+            {% endif %}
         </form>
     </main>
 
