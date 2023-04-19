@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker
 from flask_bcrypt import Bcrypt
 import datetime
 import os
+from pathlib import Path
+
 
 app = Flask(__name__, template_folder='Templates', static_folder='albums')
 app.secret_key = 'your_secret_key_here'
@@ -195,11 +197,11 @@ def upload_album():
         db.session.commit()
 
     # Create a folder for the album with the albumId as the name
-    album_folder = os.path.join('albums', str(album.albumId))
-    os.makedirs(album_folder)
+    album_folder = Path('albums') / str(album.albumId)
+    album_folder.mkdir(parents=True, exist_ok=True)
 
     # Save the file to the album folder with the photoId as the filename
-    file_path = os.path.join(album_folder, f'{photo.photoId}_{file.filename}')
+    file_path = album_folder / f"{photo.photoId}_{file.filename}"
     file.save(file_path)
 
     # Return a success message
@@ -230,12 +232,12 @@ def get_user_albums(email):
 
     album_photos = {}
     for album in albums:
-        album_path = os.path.join('albums', str(album.albumId))
+        album_path = Path('albums') / str(album.albumId)
         photos = []
-        for filename in os.listdir(album_path):
-            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
-                photo_id = filename.split('_')[0]
-                photo_path = os.path.join(str(album.albumId), filename)
+        for file_path in album_path.glob('*'):
+            if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
+                photo_id = file_path.stem.split('_')[0]
+                photo_path = str(file_path.relative_to('albums'))
                 photos.append((photo_id, photo_path))
         album_photos[album.albumId] = photos
 
