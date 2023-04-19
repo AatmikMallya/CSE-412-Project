@@ -20,6 +20,20 @@
 
     <div class="my-albums">
         <h3>My Albums:</h3>
+        {% if albums %}
+            <ul>
+            {% for album in albums %}
+                <li>{{ album.name }}</a></li>
+                <ul>
+                    {% for photo in album_photos[album.albumId] %}
+                        <li><img src="{{ url_for('static', filename=photo[1]) }}" width="200px"></li>
+                    {% endfor %}
+                </ul>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No albums to display</p>
+        {% endif %}
     </div><br>
 
     <div class="my-friends">

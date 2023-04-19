@@ -8,7 +8,7 @@ from flask_bcrypt import Bcrypt
 import datetime
 import os
 
-app = Flask(__name__, template_folder='Templates')
+app = Flask(__name__, template_folder='Templates', static_folder='albums')
 app.secret_key = 'your_secret_key_here'
 bcrypt = Bcrypt(app)
 
@@ -84,7 +84,9 @@ def profile_page():
     email = request.args.get('email')
     friends = get_friends(email)
     rec_friends = get_friend_recs(email)
-    return render_template('profile.html', email=email, friends=friends, rec_friends=rec_friends)
+    albums, album_photos = get_user_albums(email)
+    print(album_photos)
+    return render_template('profile.html', email=email, friends=friends, rec_friends=rec_friends, albums=albums, album_photos=album_photos)
 
 
 
@@ -172,7 +174,7 @@ def upload_album():
         return 'No file selected', 400
 
     # Save the file to a temporary location
-    file.save('/tmp/' + file.filename)
+    # file.save('/tmp/' + file.filename)
 
     # Create a new Album object
     album = Albums(userId=user.userId, name=album_name, creationDate=datetime.date.today())
@@ -220,6 +222,24 @@ def add_friend():
     db.session.commit()
 
     return render_template(f'profile.html', email=email, friend_success='Friend added!')
+
+# Return albums for a given user
+def get_user_albums(email):
+    user = User.query.filter_by(email=email).first()
+    albums = Albums.query.filter_by(userId=user.userId).all()
+
+    album_photos = {}
+    for album in albums:
+        album_path = os.path.join('albums', str(album.albumId))
+        photos = []
+        for filename in os.listdir(album_path):
+            if filename.endswith('.jpg') or filename.endswith('.jpeg') or filename.endswith('.png'):
+                photo_id = filename.split('_')[0]
+                photo_path = os.path.join(str(album.albumId), filename)
+                photos.append((photo_id, photo_path))
+        album_photos[album.albumId] = photos
+
+    return albums, album_photos
 
 def get_friends(email):
     user = User.query.filter_by(email=email).first()
