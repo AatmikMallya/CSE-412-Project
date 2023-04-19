@@ -238,6 +238,7 @@ def get_user_albums(email):
             if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
                 photo_id = file_path.stem.split('_')[0]
                 photo_path = str(file_path.relative_to('albums'))
+                photo_path = photo_path.replace('\\\\', '\\')
                 photos.append((photo_id, photo_path))
         album_photos[album.albumId] = photos
 
