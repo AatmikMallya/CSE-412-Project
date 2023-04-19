@@ -22,7 +22,7 @@ CREATE TABLE Friends (
 );
 
 CREATE TABLE Albums (
-    albumId INTEGER PRIMARY KEY,
+    albumId INTEGER PRIMARY KEY AUTO_INCREMENT,
     userId INTEGER,
     name TEXT,
     creationDate DATE,
@@ -30,7 +30,7 @@ CREATE TABLE Albums (
 );
 
 CREATE TABLE Photos (
-    photoId INT PRIMARY KEY,
+    photoId INT PRIMARY KEY AUTO_INCREMENT,
     albumId INT,
     userId INT,
     date DATE,
@@ -53,7 +53,7 @@ CREATE TABLE Likes (
 );
 
 CREATE TABLE Comments (
-  commentId INT PRIMARY KEY,
+  commentId INT PRIMARY KEY AUTO_INCREMENT,
   photoId INT,
   userId INT,
   text TEXT,

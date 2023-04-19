@@ -10,8 +10,8 @@
         .search {
             position: fixed;
             top: 0;
-            left: 50%;
-            transform: translate(-50%, 0);
+            left: 40%;
+            transform: translate(-40%, 0);
         }
 
             .search h3,
@@ -26,15 +26,22 @@
             right: 0;
         }
 
+        .topusers {
+            position: fixed;
+            top: auto;
+            left: 80%;
+            transform: translate(-80%, 0);
+        }
+
         .photo-feed {
             overflow-y: auto;
         }
 
-        .photo-feed img,
-        .likes-button {
-            display:flex;
-            flex-direction:column;
-        }
+            .photo-feed img,
+            .likes-button {
+                display: flex;
+                flex-direction: column;
+            }
 
         .likes-button, .comments-buttons {
             display: inline-block;
@@ -82,16 +89,39 @@
         <button><a href="profile.html?email={{ email }}" ">profile</a></button>
         {% endif %}
 
-
-        <div class="photo-feed">
-            <h3>Your Feed:</h3>
-            <form action="photo-feed" method="POST">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png" alt="" width="500" height="500">
-                <input name="submit1" type="submit" value="{{likes}} likes" class="likes-button">
-                <input name="submit2" type="submit" value="{{comments}} comments" class="comments-buttons">
+        <div class="topusers">
+            <form action="topusers" method="POST">
+                <h3>
+                    Top 10 Users<h3 />
+                    <p>{{u1}}</p>
+                    <p>{{u2}}</p>
+                    <p>{{u3}}</p>
+                    <p>{{u4}}</p>
+                    <p>{{u5}}</p>
+                    <p>{{u6}}</p>
+                    <p>{{u7}}</p>
+                    <p>{{u8}}</p>
+                    <p>{{u9}}</p>
+                    <p>{{u10}}</p>
             </form>
         </div>
 
+        <div class="photo-feed">
+            <h3>Your Feed:</h3>
+            {% if albums %}
+                {% for album in albums %}
+                    {% for photo in album_photos[album.albumId] %}
+                        <img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="500" height="500">
+                        <input name="likebutton" type="submit" value="{{ likes }} likes" class="likes-button" title="{% for like in likes %}like.userId<br>{% endfor %}">
+                        <input name="commentbutton" type="submit" value="{{ comments }} comments" class="comments-buttons">
+                        <input name="comment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
+                        <input name="postcomment" type="submit" value="Post Comment" />
+                    {% endfor %}
+                {% endfor %}
+            {% else %}
+                <p>No posts available</p>
+            {% endif %}
+        </div>
     </main>
 
 </body>
