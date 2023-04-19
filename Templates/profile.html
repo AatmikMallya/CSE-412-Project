@@ -26,7 +26,7 @@
                 <li>{{ album.name }}</a></li>
                 <ul>
                     {% for photo in album_photos[album.albumId] %}
-                    <li><img src="{{ url_for('static', filename=photo[1].replace('\\\\','/' '')) }}" width="200px"></li>
+                    <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px"></li>
                         <ul>
                             Tags: 
                         </ul>
