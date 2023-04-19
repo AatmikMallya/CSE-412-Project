@@ -23,14 +23,61 @@
         {% if albums %}
             <ul>
             {% for album in albums %}
-                <li>{{ album.name }}</a></li>
+                <li>{{ album.name }}: uploaded by {{ email }}</a></li>
                 <ul>
                     {% for photo in album_photos[album.albumId] %}
-                    <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px"></li>
+                    <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px">
                         <ul>
-                            Tags: 
+                            <li>
+                                Caption: {{photo[3].caption}}
+                            </li>
+                            <li>
+                                Upload date: {{photo[3].date}}
+                            </li>
+                            <li>
+                                Tags:
+                                {% for tag in photo[2] %}
+                                    {{tag}} 
+                                {% endfor %}
+                            </li>
+                            <li>
+                                Likes: NOT IMPLEMENTED
+                            </li>
+                            <li>
+                                Comments: NOT IMPLEMENTED
+                                <ul>
+                                    <li>comment1</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <form action="{{ url_for('delete_photo', album_id=album.albumId, photo_id=photo[3].photoId) }}" method="post">
+                                    <input type="hidden" name="_method" value="delete">
+                                    <input type="hidden" name="email" value="{{ email }}">
+                                    <button type="submit">Delete photo</button>
+                                </form>
+                            </li>
                         </ul>
+                    </li>
                     {% endfor %}
+                    <li>
+                        <form action="{{ url_for('add_photo', album_id=album.albumId) }}" method="POST" enctype="multipart/form-data">
+                            <button type="submit">Add photo to album: {{album.name}}</button>
+                            <ul>
+                                <li>
+                                    <input type="file" name="photo" id="photo" required>
+                                    <input type="hidden" name="email" value="{{ email }}">
+                                </li>
+                                <li>
+                                    <label for="caption">Caption:</label>
+                                    <input type="text" name="caption" id="caption" required>
+                                </li>
+                                <li>
+                                    <label for="tags">Tags (space separated):</label>
+                                    <input type="text" name="tags" id="tags">
+                                </li>
+                            </ul>
+                        </form>
+                    </li>
                 </ul>
             {% endfor %}
             </ul>
@@ -58,14 +105,17 @@
     </div><br>
 
     <div class="create-album">
-        <h3>Create a new Album:</h3>
+        <h3>Create a new Album (you can add more photos once it's uploaded):</h3>
         <form action="/upload_album" method="post" enctype="multipart/form-data">
             <label for="album_name">Album Name:</label>
             <input type="hidden" name="email" value="{{ email }}">
             <input type="text" name="album_name" id="album_name" required>
             <br>
-            <label for="photo">Photo:</label>
+            <label for="photo">First photo:</label>
             <input type="file" name="photo" id="photo" required>
+            <br>
+            <label for="caption">Caption:</label>
+            <input type="text" name="caption" id="caption" required>
             <br>
             <label for="tags">Tags (space separated):</label>
             <input type="text" name="tags" id="tags">

@@ -8,7 +8,7 @@ from flask_bcrypt import Bcrypt
 import datetime
 import os
 from pathlib import Path
-
+import glob
 
 app = Flask(__name__, template_folder='Templates', static_folder='albums')
 app.secret_key = 'your_secret_key_here'
@@ -62,10 +62,10 @@ class Photos(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('Users.userId'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     caption = db.Column(db.String(255))
-    tags = db.relationship('Tags', backref='photo')
+    tags = db.relationship('Tags', backref='photo', cascade='all, delete-orphan', passive_deletes=True)
 
 class Tags(db.Model):
-    photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId'), primary_key=True)
+    photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId', ondelete='CASCADE'), primary_key=True)
     description = db.Column(db.String(255))
 
 
@@ -166,6 +166,7 @@ def upload_album():
     album_name = request.form.get('album_name')
     file = request.files['photo']
     tags = request.form.get('tags')
+    caption = request.form.get('caption')
 
     # Check if the file was uploaded
     if 'photo' not in request.files:
@@ -184,7 +185,7 @@ def upload_album():
     db.session.commit()
 
     # Create a new Photo object
-    photo = Photos(albumId=album.albumId, userId=user.userId, date=datetime.date.today(), caption=album_name)
+    photo = Photos(albumId=album.albumId, userId=user.userId, date=datetime.date.today(), caption=caption)
     db.session.add(photo)
     db.session.commit()
 
@@ -206,6 +207,71 @@ def upload_album():
 
     # Return a success message
     return 'Album uploaded successfully', 200
+
+@app.route('/albums/<int:album_id>/add_photo', methods=['POST'])
+def add_photo(album_id):
+    album = Albums.query.get_or_404(album_id)
+    file = request.files['photo']
+    tags = request.form.get('tags')
+    caption = request.form.get('caption')
+    email = request.form.get('email')
+
+    if file:
+        photo = Photos(albumId=album.albumId, userId=album.userId, date=datetime.date.today(), caption=caption)
+        db.session.add(photo)
+        db.session.commit()
+
+        if tags:
+            tags_list = tags.split(' ')
+            for tag in tags_list:
+                tag_obj = Tags(photoId=photo.photoId, description=tag.strip())
+                db.session.add(tag_obj)
+            db.session.commit()
+
+        # Save the file to the album folder with the photoId as the filename
+        album_folder = Path('albums') / str(album.albumId)
+
+        # Save the file to the album folder with the photoId as the filename
+        file_path = album_folder / f"{photo.photoId}_{file.filename}"
+        file.save(file_path)
+
+        return redirect(url_for('profile_page', email=email) )
+    else:
+        flash('No file selected.', 'error')
+        return redirect(url_for('profile_page', email=email) )
+
+@app.route('/albums/<int:album_id>/delete_photo/<int:photo_id>', methods=['POST'])
+def delete_photo(album_id, photo_id):
+    email = request.form.get('email')
+    photo = Photos.query.filter_by(photoId=photo_id, albumId=album_id).first()
+    if not photo:
+        flash('Photo not found', 'error')
+        return redirect(url_for('album', album_id=album_id, email=session['email']))
+    # Delete the photo from the file system
+    photo_path = Path('albums') / str(photo.albumId)
+    
+    # photo_path.unlink()
+    # Delete the selected files
+    for file_path in photo_path.glob(f'{photo.photoId}*'):
+        file_path.unlink()
+    
+    # The folder where the file is located
+    # folder = Path('albums') / str(photo.albumId)
+
+    # # The start of the filename you are looking for
+    # filename_start = f'{photo.photoId}'
+
+    # # Select the file with the unique start of the filename
+    # file_path = next(iter(os.glob(os.path.join(folder, f"{filename_start}*"))), None)
+    # print(file_path)
+    # os.remove('aaaaaa',file_path)
+
+    # Delete the photo from the database
+    db.session.delete(photo)
+    db.session.commit()
+    flash('Photo deleted successfully', 'success')
+    return redirect(url_for('profile_page', email=email) )
+
 
 # Add friends to the databse
 @app.route('/add_friend', methods=['POST'])
@@ -240,7 +306,12 @@ def get_user_albums(email):
                 photo_path = str(file_path.relative_to('albums'))
                 photo_path = photo_path.replace('//', '/')
                 photo_path = photo_path.replace('\\\\', '/')
-                photos.append((photo_id, photo_path))
+                photo_tags = []
+                photo = Photos.query.filter_by(photoId=photo_id, albumId=album.albumId).first()
+                if photo:
+                    for tag in photo.tags:
+                        photo_tags.append(tag.description)
+                photos.append((photo_id, photo_path, photo_tags, photo))
         album_photos[album.albumId] = photos
 
     return albums, album_photos
