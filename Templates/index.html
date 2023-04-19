@@ -106,22 +106,22 @@
             </form>
         </div>
 
-
         <div class="photo-feed">
             <h3>Your Feed:</h3>
-            {% for album in albums %}
-                {% for photo in album.photos %}
-                    <form action="photo-feed" method="POST">
-                        <img src="{{ photo.image }}" alt="" width="500" height="500">
-                        <input name="submit1" type="submit" value="{{ photo.likes }} likes" class="likes-button">
-                        <input name="submit2" type="submit" value="{{ photo.comments }} comments" class="comments-buttons">
-                        <input name="postcomment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
-                        <input name="submit3" type="submit" value="Post Comment" />
-                    </form>
+            {% if albums %}
+                {% for album in albums %}
+                    {% for photo in album_photos[album.albumId] %}
+                        <img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="500" height="500">
+                        <input name="likebutton" type="submit" value="{{ likes }} likes" class="likes-button" title="{% for like in likes %}like.userId<br>{% endfor %}">
+                        <input name="commentbutton" type="submit" value="{{ comments }} comments" class="comments-buttons">
+                        <input name="comment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
+                        <input name="postcomment" type="submit" value="Post Comment" />
+                    {% endfor %}
                 {% endfor %}
-            {% endfor %}
+            {% else %}
+                <p>No posts available</p>
+            {% endif %}
         </div>
-
     </main>
 
 </body>
