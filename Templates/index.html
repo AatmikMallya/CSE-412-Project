@@ -109,14 +109,16 @@
 
         <div class="photo-feed">
             <h3>Your Feed:</h3>
-            {% for post in posts %}
-            <form action="photo-feed" method="POST">
-                <img src="{{ image }}" alt="" width="500" height="500">
-                <input name="submit1" type="submit" value="{{ likes }} likes" class="likes-button">
-                <input name="submit2" type="submit" value="{{ comments }} comments" class="comments-buttons">
-                <input name="postcomment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
-                <input name="submit3" type="submit" value="Post Comment" />
-            </form>
+            {% for album in albums %}
+                {% for photo in album.photos %}
+                    <form action="photo-feed" method="POST">
+                        <img src="{{ photo.image }}" alt="" width="500" height="500">
+                        <input name="submit1" type="submit" value="{{ photo.likes }} likes" class="likes-button">
+                        <input name="submit2" type="submit" value="{{ photo.comments }} comments" class="comments-buttons">
+                        <input name="postcomment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
+                        <input name="submit3" type="submit" value="Post Comment" />
+                    </form>
+                {% endfor %}
             {% endfor %}
         </div>
 
