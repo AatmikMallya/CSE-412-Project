@@ -10,8 +10,8 @@
         .search {
             position: fixed;
             top: 0;
-            left: 50%;
-            transform: translate(-50%, 0);
+            left: 40%;
+            transform: translate(-40%, 0);
         }
 
             .search h3,
@@ -25,7 +25,7 @@
             top: 0;
             right: 0;
         }
-        
+
         .topusers {
             position: fixed;
             top: auto;
@@ -37,11 +37,11 @@
             overflow-y: auto;
         }
 
-        .photo-feed img,
-        .likes-button {
-            display:flex;
-            flex-direction:column;
-        }
+            .photo-feed img,
+            .likes-button {
+                display: flex;
+                flex-direction: column;
+            }
 
         .likes-button, .comments-buttons {
             display: inline-block;
@@ -88,7 +88,7 @@
         {% if email %}
         <button><a href="profile.html?email={{ email }}" ">profile</a></button>
         {% endif %}
-            
+
         <div class="topusers">
             <form action="topusers" method="POST">
                 <h3>
@@ -109,11 +109,15 @@
 
         <div class="photo-feed">
             <h3>Your Feed:</h3>
+            {% for post in posts %}
             <form action="photo-feed" method="POST">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/800px-Image_created_with_a_mobile_phone.png" alt="" width="500" height="500">
-                <input name="submit1" type="submit" value="{{likes}} likes" class="likes-button">
-                <input name="submit2" type="submit" value="{{comments}} comments" class="comments-buttons">
+                <img src="{{ image }}" alt="" width="500" height="500">
+                <input name="submit1" type="submit" value="{{ likes }} likes" class="likes-button">
+                <input name="submit2" type="submit" value="{{ comments }} comments" class="comments-buttons">
+                <input name="postcomment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
+                <input name="submit3" type="submit" value="Post Comment" />
             </form>
+            {% endfor %}
         </div>
 
     </main>
