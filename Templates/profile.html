@@ -129,16 +129,16 @@
 
     <h3>You may also like:</h3>
     <ul>
-        {% for photo, user, likes, comments, tags, score, path in recommended_photos %}
+        {% for photo, user, tags_description, score, photo_path, likes, comments in recommended_photos %}
             <li>
-                <img src="/albums/{{path.replace('\\','/')}}" width="200px">
+                <img src="/albums/{{photo_path.replace('\\','/')}}" width="200px">
                 <ul>
                     <li>
                         Uploaded by {{user.firstName}} {{user.lastName}} on {{photo.date}}
                     </li>
-                    <li>
+                    <!-- <li>
                         Recommendation score: {{ score }}
-                    </li>
+                    </li> -->
                     <li>
                         Likes {{likes}}
                     </li>
@@ -146,8 +146,7 @@
                         Comments: {{comments}}
                     </li>
                     <li>
-                        Tags:
-                        <ul>{{tags}}</ul>
+                        Tags: {{tags_description}}
                     </li>
                 </ul>
             </li>

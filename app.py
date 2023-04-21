@@ -397,9 +397,15 @@ def get_recommended_photos(user_id, top_tags):
         `Users`.`userId` AS `Users_userId`,
         `Users`.`firstName` AS `Users_firstName`,
         `Users`.`lastName` AS `Users_lastName`,
-        GROUP_CONCAT(tags.description) AS tags_description,
-        count(likes.`userId`) AS likes_count,
-        count(comments.`commentId`) AS comments_count
+        `Users`.email AS `Users_email`,
+        `Users`.`dateOfBirth` AS `Users_dateOfBirth`,
+        `Users`.hometown AS `Users_hometown`,
+        `Users`.gender AS `Users_gender`,
+        `Users`.password AS `Users_password`,
+        GROUP_CONCAT(DISTINCT tags.description) AS tags_description,
+        COUNT(DISTINCT likes.`userId`) AS likes_count,
+        COUNT(DISTINCT comments.`commentId`) AS comments_count,
+        SUM(tags.description IN :top_tags AND photos.`userId` != :userId_1) AS score
     FROM photos
     INNER JOIN tags ON tags.`photoId` = photos.`photoId`
     INNER JOIN `Users` ON `Users`.`userId` = photos.`userId`
@@ -407,28 +413,50 @@ def get_recommended_photos(user_id, top_tags):
     LEFT OUTER JOIN comments ON comments.`photoId` = photos.`photoId`
     WHERE photos.`userId` != :userId_1
     GROUP BY photos.`photoId`, `Users`.`userId`
-    """)
+    ORDER BY score DESC
+        """)
 
-    # Execute the query with the user_id parameter
-    recommended_photos = db.session.execute(query, {'userId_1': user_id}).fetchall()
+    # Execute the query with the user_id and top_tags parameters
+    recommended_photos = db.session.execute(query, {'userId_1': user_id, 'top_tags': top_tags}).fetchall()
 
     results = []
     for row in recommended_photos:
-        photo, user, likes, comments, tags_description, score = row
-        album_path = Path('albums') / str(photo.albumId)
-
+        (
+            photos_photoId, photos_albumId, photos_userId, photos_date,
+            photos_caption, Users_userId, Users_firstName, Users_lastName,
+            Users_email, Users_dateOfBirth, Users_hometown, Users_gender,
+            Users_password, tags_description, likes_count, comments_count, score
+        ) = row  # Unpack the row with the correct number of values
+        album_path = Path('albums') / str(photos_albumId)
+        
         photo_path = None
-        for file_path in album_path.glob(f'{photo.photoId}*'):
+        for file_path in album_path.glob(f'{photos_photoId}*'):
             if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
                 photo_path = str(file_path.relative_to('albums'))
                 photo_path = photo_path.replace('//', '/')
                 photo_path = photo_path.replace('\\\\', '/')
                 break
-
+        
         if photo_path:
-            # Split the concatenated tags_description
-            tags = tags_description.split(',')
-            results.append((photo, user, likes, comments, tags, score, photo_path))
+            photo = Photos(
+                photoId=photos_photoId,
+                albumId=photos_albumId,
+                userId=photos_userId,
+                date=photos_date,
+                caption=photos_caption
+            )
+            
+            user = User(
+                userId=Users_userId,
+                firstName=Users_firstName,
+                lastName=Users_lastName,
+                email=Users_email,
+                dateOfBirth=Users_dateOfBirth,
+                hometown=Users_hometown,
+                gender=Users_gender,
+                password=Users_password
+            )
+            results.append((photo, user, tags_description, score, photo_path, likes_count, comments_count))  # Append the values to the results list
 
     return results
 
