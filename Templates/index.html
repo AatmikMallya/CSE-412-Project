@@ -107,21 +107,46 @@
         </div>
 
         <div class="photo-feed">
-            <h3>Your Feed:</h3>
-            {% if albums %}
-                {% for album in albums %}
-                    {% for photo in album_photos[album.albumId] %}
-                        <img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="500" height="500">
-                        <input name="likebutton" type="submit" value="{{ likes }} likes" class="likes-button" title="{% for like in likes %}like.userId<br>{% endfor %}">
-                        <input name="commentbutton" type="submit" value="{{ comments }} comments" class="comments-buttons">
-                        <input name="comment" type="text" id="commentvalue" placeholder="Add a comment" required="required" />
-                        <input name="postcomment" type="submit" value="Post Comment" />
-                    {% endfor %}
+            <h3>Album feed:</h3>
+            {% if album_users %}
+                <ul>
+                {% for album, user in album_users %}
+                     <li>{{ album.name }}: uploaded by {{ user.firstName }} {{ user.lastName }}</a></li>
+                    <ul>
+                        {% for photo in album_photos[album.albumId] %}
+                        <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px">
+                            <ul>
+                                <li>
+                                    Caption: {{photo[3].caption}}
+                                </li>
+                                <li>
+                                    Upload date: {{photo[3].date}}
+                                </li>
+                                <li>
+                                    Tags:
+                                    {% for tag in photo[2] %}
+                                        {{tag}} 
+                                    {% endfor %}
+                                </li>
+                                <li>
+                                    Likes: NOT IMPLEMENTED
+                                </li>
+                                <li>
+                                    Comments: NOT IMPLEMENTED
+                                    <ul>
+                                        <li>comment1</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 {% endfor %}
+                </ul>
             {% else %}
-                <p>No posts available</p>
+                <p>No albums to display</p>
             {% endif %}
-        </div>
+        </div><br>
     </main>
 
 </body>

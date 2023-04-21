@@ -68,6 +68,17 @@ class Tags(db.Model):
     photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId', ondelete='CASCADE'), primary_key=True)
     description = db.Column(db.String(255))
 
+class Like(db.Model):
+    photoId = db.Column(db.Integer, db.ForeignKey('photo.photoId', ondelete='CASCADE'), primary_key=True)
+    userId = db.Column(db.Integer, db.ForeignKey('user.userId'), primary_key=True)
+
+
+class Comment(db.Model):
+    commentId = db.Column(db.Integer, primary_key=True)
+    photoId = db.Column(db.Integer, db.ForeignKey('photo.photoId', ondelete='CASCADE'))
+    userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
+    text = db.Column(db.Text)
+    date = db.Column(db.Date)
 
 #######################################
 #  Render html pages
@@ -75,7 +86,8 @@ class Tags(db.Model):
 @app.route('/')
 @app.route('/index.html')
 def home_page():
-    return render_template('index.html')
+    album_users, album_photos = get_all_albums()
+    return render_template('index.html', album_users=album_users, album_photos=album_photos)
 
 @app.route('/register.html', methods=['GET'])
 def register_page():
@@ -315,6 +327,29 @@ def get_user_albums(email):
         album_photos[album.albumId] = photos
 
     return albums, album_photos
+
+def get_all_albums():
+    album_users = db.session.query(Albums, User).join(User, Albums.userId == User.userId).all()
+    album_photos = {}
+    
+    for album, user in album_users:
+        album_path = Path('albums') / str(album.albumId)
+        photos = []
+        for file_path in album_path.glob('*'):
+            if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
+                photo_id = file_path.stem.split('_')[0]
+                photo_path = str(file_path.relative_to('albums'))
+                photo_path = photo_path.replace('//', '/')
+                photo_path = photo_path.replace('\\\\', '/')
+                photo_tags = []
+                photo = Photos.query.filter_by(photoId=photo_id, albumId=album.albumId).first()
+                if photo:
+                    for tag in Tags.query.filter_by(photoId=photo.photoId).all():
+                        photo_tags.append(tag.description)
+                photos.append((photo_id, photo_path, photo_tags, photo))
+        album_photos[album.albumId] = photos
+    print(album_users)
+    return album_users, album_photos
 
 def get_friends(email):
     user = User.query.filter_by(email=email).first()
