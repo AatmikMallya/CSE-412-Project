@@ -10,7 +10,19 @@
 <body>
 
     <style>
-        main {display: flex; justify-content: center; align-items: center; flex-direction: column;}
+
+        main {
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-direction: column;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        input {
+            margin-bottom: 10px;
+        }
+
     </style>
 
     <main>
@@ -29,10 +41,8 @@
             <label for="hometown">Hometown: </label>
             <input type ="text" name="hometown" required></label><br>
             <label for="gender">Gender: </label>
-            <label for="gender-male">Male</label>
-            <input type ="radio" id="gender-male" name="gender" value="male" required>
-            <label for="gender-female">Female</label>
-            <input type ="radio" id="gender-female" name="gender" value="female" required><br>
+            <label for="gender-male"><input type ="radio" id="gender-male" name="gender" value="male" required>Male</label>
+            <label for="gender-female"><input type ="radio" id="gender-female" name="gender" value="female" required>Female</label><br>
             <label for="gender">Password: </label>
             <input type ="password" name="password" required></label><br>
             <input type="submit" value="Register">

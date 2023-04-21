@@ -5,8 +5,19 @@
     <title>PhotoShare</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
 
     <style>
+        main {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
         .search {
             position: fixed;
             top: 0;
@@ -37,16 +48,15 @@
             overflow-y: auto;
         }
 
-            .photo-feed img,
-            .likes-button {
-                display: flex;
-                flex-direction: column;
-            }
-
-        .likes-button, .comments-buttons {
-            display: inline-block;
-            vertical-align: middle;
+        .photo-feed img {
+            display: flex;
+            flex-direction: column;
         }
+
+        .photo-feed h3 {
+            font-weight: bold;
+        }
+
     </style>
 </head>
 
@@ -86,13 +96,13 @@
         </div>
 
         {% if email %}
-        <button><a href="profile.html?email={{ email }}" ">profile</a></button>
+        <button><a href="profile.html?email={{ email }}">profile</a></button>
         {% endif %}
 
         <div class="topusers">
             <form action="topusers" method="POST">
                 <h3>
-                    Top 10 Users<h3 />
+                    Top 10 Users</h3>
                     <p>{{u1}}</p>
                     <p>{{u2}}</p>
                     <p>{{u3}}</p>
@@ -114,7 +124,7 @@
                      <li>{{ album.name }}: uploaded by {{ user.firstName }} {{ user.lastName }}</a></li>
                     <ul>
                         {% for photo in album_photos[album.albumId] %}
-                        <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px">
+                        <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px" alt="">
                             <ul>
                                 <li>
                                     Caption: {{photo[3].caption}}
