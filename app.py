@@ -32,7 +32,6 @@ class User(db.Model):
     hometown = db.Column(db.String(100), nullable=False)
     gender = db.Column(db.String(10), nullable=False)
     password = db.Column(db.String(100), nullable=False)
-
     def __init__(self, userId, firstName, lastName, email, dateOfBirth, hometown, gender, password):
         self.userId = userId
         self.firstName = firstName
@@ -72,7 +71,6 @@ class Tags(db.Model):
 class Likes(db.Model):
     photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId', ondelete='CASCADE'), primary_key=True)
     userId = db.Column(db.Integer, db.ForeignKey('Users.userId'), primary_key=True)
-
 
 class Comments(db.Model):
     commentId = db.Column(db.Integer, primary_key=True)
@@ -307,6 +305,18 @@ def like_photo():
 
     return redirect('index.html')
 
+@app.route('/add_comment', methods=['POST'])
+def add_comment():
+    photo_id = request.form.get('photo_id')
+    user_id = request.form.get('user_id')
+    text = request.form.get('text')
+    print('aaaaa', photo_id)
+    new_comment = Comments(photoId=photo_id, userId=user_id, text=text, date=datetime.date.today())
+    db.session.add(new_comment)
+    db.session.commit()
+
+    return redirect('index.html')
+
 # Add friends to the databse
 @app.route('/add_friend', methods=['POST'])
 def add_friend():
@@ -346,7 +356,14 @@ def get_user_albums(email):
                     for tag in photo.tags:
                         photo_tags.append(tag.description)
                 like_count = Likes.query.filter_by(photoId=photo_id).count()
-                photos.append((photo_id, photo_path, photo_tags, photo, like_count))
+                likes = Likes.query.filter_by(photoId=photo_id).all()
+                likers = [User.query.filter_by(userId=like.userId).first() for like in likes]
+                like_count = len(likes)
+                comments = []
+                for comment in Comments.query.filter_by(photoId=photo.photoId).all():
+                    author = User.query.filter_by(userId=comment.userId).first()
+                    comments.append((comment, author))
+                photos.append((photo_id, photo_path, photo_tags, photo, like_count, comments, likers))
         album_photos[album.albumId] = photos
 
     return albums, album_photos
@@ -370,7 +387,14 @@ def get_all_albums():
                     for tag in Tags.query.filter_by(photoId=photo.photoId).all():
                         photo_tags.append(tag.description)
                 like_count = Likes.query.filter_by(photoId=photo_id).count()
-                photos.append((photo_id, photo_path, photo_tags, photo, like_count))
+                likes = Likes.query.filter_by(photoId=photo_id).all()
+                likers = [User.query.filter_by(userId=like.userId).first() for like in likes]
+                like_count = len(likes)
+                comments = []
+                for comment in Comments.query.filter_by(photoId=photo.photoId).all():
+                    author = User.query.filter_by(userId=comment.userId).first()
+                    comments.append((comment, author))
+                photos.append((photo_id, photo_path, photo_tags, photo, like_count, comments, likers))
         album_photos[album.albumId] = photos
     print(album_users)
     return album_users, album_photos
