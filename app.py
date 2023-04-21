@@ -85,11 +85,13 @@ class Comments(db.Model):
 @app.route('/')
 @app.route('/index.html')
 def home_page():
+    top_users = top_contributors()
+    print(top_users)
     album_users, album_photos = get_all_albums()
     if 'user_email' in session:
         email = session['user_email']
-        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos)
-    return render_template('index.html', album_users=album_users, album_photos=album_photos)
+        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users)
+    return render_template('index.html', album_users=album_users, album_photos=album_photos, top_users=top_users)
 
 @app.route('/register.html', methods=['GET'])
 def register_page():
@@ -268,17 +270,6 @@ def delete_photo(album_id, photo_id):
     # Delete the selected files
     for file_path in photo_path.glob(f'{photo.photoId}*'):
         file_path.unlink()
-    
-    # The folder where the file is located
-    # folder = Path('albums') / str(photo.albumId)
-
-    # # The start of the filename you are looking for
-    # filename_start = f'{photo.photoId}'
-
-    # # Select the file with the unique start of the filename
-    # file_path = next(iter(os.glob(os.path.join(folder, f"{filename_start}*"))), None)
-    # print(file_path)
-    # os.remove('aaaaaa',file_path)
 
     # Delete the photo from the database
     db.session.delete(photo)
@@ -426,6 +417,14 @@ def get_friend_recs(email):
     friend_recs = [User.query.get(user_id[0]) for user_id in result.fetchall()]
     return friend_recs
 
+def top_contributors():
+    users = db.session.query(User, func.count(Photos.photoId) + func.count(Comments.commentId)).\
+    outerjoin(Photos, User.userId == Photos.userId).\
+    outerjoin(Comments, User.userId == Comments.userId).\
+    group_by(User.userId).\
+    order_by((func.count(Photos.photoId) + func.count(Comments.commentId)).desc()).\
+    limit(10).all()
+    return users
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -120,17 +120,13 @@
         <div class="topusers">
             <form action="topusers" method="POST">
                 <h3>
-                    Top 10 Users</h3>
-                    <p>{{u1}}</p>
-                    <p>{{u2}}</p>
-                    <p>{{u3}}</p>
-                    <p>{{u4}}</p>
-                    <p>{{u5}}</p>
-                    <p>{{u6}}</p>
-                    <p>{{u7}}</p>
-                    <p>{{u8}}</p>
-                    <p>{{u9}}</p>
-                    <p>{{u10}}</p>
+                    Top 10 Users & Contribution Score</h3>
+                    <ul>
+                        {% for user, contribution in top_users %}
+                        <li>{{ user.firstName }} {{ user.lastName }}: {{ contribution }}</li>
+                    {% endfor %}
+                    </ul>
+                    
             </form>
         </div>
 
