@@ -25,10 +25,27 @@
             list-style-type: none;
         }
 
+        .back-button {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #30B0CC;
+            font-size: 16px;
+            border: none;
+            padding: 5px 10px 5px 10px;
+            border-radius: 8px;
+            width: max-content;
+        }
+
+        .back-button a {
+            text-decoration: none;
+            color: white;
+        }
+
     </style>
 
   <main>
-  <a href="index.html">Back to homepage</a>
+    <div class="back-button">
+        <a href="index.html">Back to homepage</a>
+    </div>
 
     <h1>My Profile:</h1>
 
@@ -109,6 +126,33 @@
             <p>No albums to display</p>
         {% endif %}
     </div><br>
+
+    <h3>You may also like:</h3>
+    <ul>
+        {% for photo, user, likes, comments, tags, score, path in recommended_photos %}
+            <li>
+                <img src="/albums/{{path.replace('\\','/')}}" width="200px">
+                <ul>
+                    <li>
+                        Uploaded by {{user.firstName}} {{user.lastName}} on {{photo.date}}
+                    </li>
+                    <li>
+                        Recommendation score: {{ score }}
+                    </li>
+                    <li>
+                        Likes {{likes}}
+                    </li>
+                    <li>
+                        Comments: {{comments}}
+                    </li>
+                    <li>
+                        Tags:
+                        <ul>{{tags}}</ul>
+                    </li>
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
 
     <div class="my-friends">
         <h3>My Friends:</h3>

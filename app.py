@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import quoted_name
-from sqlalchemy import Column, Integer, String, Date, func, text
+from sqlalchemy.sql import quoted_name, text
+from sqlalchemy import Column, Integer, String, Date, func, text, cast, desc, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from flask_bcrypt import Bcrypt
@@ -17,7 +17,8 @@ bcrypt = Bcrypt(app)
 # Configure MySQL Connection
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/photoshare_database' # Replace with your MySQL database connection details
 db = SQLAlchemy(app)
-
+with app.app_context():
+    db.session.execute(text("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));"))
 
 #######################################
 # Define database models
@@ -103,8 +104,9 @@ def profile_page():
     friends = get_friends(email)
     rec_friends = get_friend_recs(email)
     albums, album_photos = get_user_albums(email)
+    recommended_photos = you_may_also_like(email)
     print(album_photos)
-    return render_template('profile.html', email=email, friends=friends, rec_friends=rec_friends, albums=albums, album_photos=album_photos)
+    return render_template('profile.html', email=email, friends=friends, rec_friends=rec_friends, albums=albums, album_photos=album_photos, recommended_photos=recommended_photos)
 
 
 
@@ -170,6 +172,7 @@ def login():
 @app.route('/logout')
 def logout():
     # Clear session data
+    session.pop('user_email', None)
     session.clear()
 
     return redirect('index.html')
@@ -326,8 +329,112 @@ def add_friend():
 
     return render_template(f'profile.html', email=email, friend_success='Friend added!')
 
+def you_may_also_like(email):
+    user = User.query.filter_by(email=email).first()
+    top_tags = get_top_tags_for_user(user.userId)
+    recommended_photos = get_recommended_photos(user.userId, top_tags)
+    print('bbbbbb',recommended_photos)
+    return recommended_photos
+
+def get_top_tags_for_user(user_id, limit=5):
+    top_tags = db.session.query(Tags.description, func.count(Tags.description)).\
+        join(Photos, Photos.photoId == Tags.photoId).\
+        filter(Photos.userId == user_id).\
+        group_by(Tags.description).\
+        order_by(func.count(Tags.description).desc()).\
+        limit(limit).all()
+    return [tag for tag, count in top_tags]
+
+# def get_recommended_photos(user_id, top_tags):
+#     recommended_photos = (
+#         db.session.query(
+#             Photos,
+#             User,
+#             Likes,
+#             Comments,
+#             Tags,
+#             cast(
+#                 sum(
+#                     Tags.description.in_(top_tags) &
+#                     (Photos.userId != user_id)
+#                 ), Integer).label('score')
+#         )
+#         .join(Tags, Tags.photoId == Photos.photoId)
+#         .join(User, User.userId == Photos.userId)
+#         .outerjoin(Likes, Likes.photoId == Photos.photoId)
+#         .outerjoin(Comments, Comments.photoId == Photos.photoId)
+#         .group_by(Photos.photoId, User.userId, Tags.photoId)
+#         .order_by(desc('score'))
+#     ).all()
+#     results = []
+#     for row in recommended_photos:
+#         photo, user, likes, comments, tags, score = row
+#         album_path = Path('albums') / str(photo.albumId)
+        
+#         photo_path = None
+#         for file_path in album_path.glob(f'{photo.photoId}*'):
+#             if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
+#                 photo_path = str(file_path.relative_to('albums'))
+#                 photo_path = photo_path.replace('//', '/')
+#                 photo_path = photo_path.replace('\\\\', '/')
+#                 break
+        
+#         if photo_path:
+#             results.append((photo, user, likes, comments, tags, score, photo_path))
+            
+#     return results
+
+
+def get_recommended_photos(user_id, top_tags):
+    # Use the updated SQL query with GROUP_CONCAT
+    query = text("""
+    SELECT 
+        photos.`photoId` AS `photos_photoId`,
+        photos.`albumId` AS `photos_albumId`,
+        photos.`userId` AS `photos_userId`,
+        photos.date AS photos_date,
+        photos.caption AS photos_caption,
+        `Users`.`userId` AS `Users_userId`,
+        `Users`.`firstName` AS `Users_firstName`,
+        `Users`.`lastName` AS `Users_lastName`,
+        GROUP_CONCAT(tags.description) AS tags_description,
+        count(likes.`userId`) AS likes_count,
+        count(comments.`commentId`) AS comments_count
+    FROM photos
+    INNER JOIN tags ON tags.`photoId` = photos.`photoId`
+    INNER JOIN `Users` ON `Users`.`userId` = photos.`userId`
+    LEFT OUTER JOIN likes ON likes.`photoId` = photos.`photoId`
+    LEFT OUTER JOIN comments ON comments.`photoId` = photos.`photoId`
+    WHERE photos.`userId` != :userId_1
+    GROUP BY photos.`photoId`, `Users`.`userId`
+    """)
+
+    # Execute the query with the user_id parameter
+    recommended_photos = db.session.execute(query, {'userId_1': user_id}).fetchall()
+
+    results = []
+    for row in recommended_photos:
+        photo, user, likes, comments, tags_description, score = row
+        album_path = Path('albums') / str(photo.albumId)
+
+        photo_path = None
+        for file_path in album_path.glob(f'{photo.photoId}*'):
+            if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
+                photo_path = str(file_path.relative_to('albums'))
+                photo_path = photo_path.replace('//', '/')
+                photo_path = photo_path.replace('\\\\', '/')
+                break
+
+        if photo_path:
+            # Split the concatenated tags_description
+            tags = tags_description.split(',')
+            results.append((photo, user, likes, comments, tags, score, photo_path))
+
+    return results
+
 # Return albums for a given user
 def get_user_albums(email):
+    print(email)
     user = User.query.filter_by(email=email).first()
     albums = Albums.query.filter_by(userId=user.userId).all()
 
