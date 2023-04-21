@@ -139,6 +139,36 @@
                     <li><a href="{{ url_for('home_page', tag=tag) }}">{{ tag }}</a></li>
                 {% endfor %}
             </ul>
+
+            <form action="search_comments" method="POST">
+                <label for="comment_search">Search comments:</label>
+                <input type="text" id="comment_search" name="comment_search">
+                <button type="submit">Search</button>
+            </form>
+
+            {% if users_with_matching_comments %}
+                <h2>Users with matching comments</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Matching Comments Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users_with_matching_comments %}
+                            <tr>
+                                <td>{{ user.userId }}</td>
+                                <td>{{ user.firstName }}</td>
+                                <td>{{ user.lastName }}</td>
+                                <td>{{ user.matching_comments_count }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
 
         {% if search_results %}

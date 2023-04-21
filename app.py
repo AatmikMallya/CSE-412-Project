@@ -88,15 +88,14 @@ class Comments(db.Model):
 @app.route('/index.html', methods=['GET','POST'])
 def home_page(tag=None):
     tag = request.args.get('tag')
-    popular_tags = get_most_popular_tags()
     search_results = None
     if tag:
             search_results = search_photos_by_tags(tag)
     if request.method == 'POST':
         tags = request.form['tags']
         search_results = search_photos_by_tags(tags)
+    popular_tags = get_most_popular_tags()
     top_users = top_contributors()
-    print('mmmmm', tag, search_results)
     album_users, album_photos = get_all_albums()
     if 'user_email' in session:
         email = session['user_email']
@@ -176,6 +175,34 @@ def login():
         flash('User not found', 'error')  # Flash error message
     session['user_email'] = email
     return redirect(url_for('home_page', email=email))
+
+@app.route('/search_comments', methods=['POST'])
+def search_comments():
+    query = request.form['comment_search']
+    query_string = text("""
+    SELECT 
+        Users.userId, Users.firstName, Users.lastName, COUNT(*) as matching_comments_count
+    FROM
+        Users
+    JOIN
+        Comments ON Users.userId = Comments.userId
+    WHERE
+        Comments.text LIKE :query
+    GROUP BY
+        Users.userId
+    ORDER BY
+        matching_comments_count DESC;
+    """)
+
+    # Execute the query with the search query parameter
+    users_with_matching_comments = db.session.execute(query_string, {'query': f'%{query}%'}).fetchall()
+    popular_tags = get_most_popular_tags()
+    top_users = top_contributors()
+    album_users, album_photos = get_all_albums()
+    if 'user_email' in session:
+        email = session['user_email']
+        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=None, popular_tags=popular_tags,users_with_matching_comments=users_with_matching_comments)
+    return render_template('index.html', album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=None, popular_tags=popular_tags,users_with_matching_comments=users_with_matching_comments)
 
 # Logout route
 @app.route('/logout')
@@ -353,46 +380,6 @@ def get_top_tags_for_user(user_id, limit=5):
         order_by(func.count(Tags.description).desc()).\
         limit(limit).all()
     return [tag for tag, count in top_tags]
-
-# def get_recommended_photos(user_id, top_tags):
-#     recommended_photos = (
-#         db.session.query(
-#             Photos,
-#             User,
-#             Likes,
-#             Comments,
-#             Tags,
-#             cast(
-#                 sum(
-#                     Tags.description.in_(top_tags) &
-#                     (Photos.userId != user_id)
-#                 ), Integer).label('score')
-#         )
-#         .join(Tags, Tags.photoId == Photos.photoId)
-#         .join(User, User.userId == Photos.userId)
-#         .outerjoin(Likes, Likes.photoId == Photos.photoId)
-#         .outerjoin(Comments, Comments.photoId == Photos.photoId)
-#         .group_by(Photos.photoId, User.userId, Tags.photoId)
-#         .order_by(desc('score'))
-#     ).all()
-#     results = []
-#     for row in recommended_photos:
-#         photo, user, likes, comments, tags, score = row
-#         album_path = Path('albums') / str(photo.albumId)
-        
-#         photo_path = None
-#         for file_path in album_path.glob(f'{photo.photoId}*'):
-#             if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
-#                 photo_path = str(file_path.relative_to('albums'))
-#                 photo_path = photo_path.replace('//', '/')
-#                 photo_path = photo_path.replace('\\\\', '/')
-#                 break
-        
-#         if photo_path:
-#             results.append((photo, user, likes, comments, tags, score, photo_path))
-            
-#     return results
-
 
 def get_recommended_photos(user_id, top_tags):
     # Use the updated SQL query with GROUP_CONCAT
