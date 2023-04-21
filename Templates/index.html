@@ -132,6 +132,13 @@
                     </ul>
                     
             </form>
+
+            <h3>Popular Tags:</h3>
+            <ul>
+                {% for tag in popular_tags %}
+                    <li><a href="{{ url_for('home_page', tag=tag) }}">{{ tag }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
 
         {% if search_results %}
@@ -139,7 +146,11 @@
         <div class="search-results">
             <ul style="margin-bottom: 20px;">
                 {% for photo in search_results %}
-                <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px" alt="">
+                
+                <li>
+                    {% if photo[1] is not none %}
+                    <img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px" alt="">
+                    {% endif %}
                     <ul style="padding:0px;">
                         <li>
                             Caption: {{photo[3].caption}}

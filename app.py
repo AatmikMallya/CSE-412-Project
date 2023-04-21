@@ -86,19 +86,22 @@ class Comments(db.Model):
 #######################################
 @app.route('/', methods=['GET','POST'])
 @app.route('/index.html', methods=['GET','POST'])
-def home_page():
+def home_page(tag=None):
+    tag = request.args.get('tag')
+    popular_tags = get_most_popular_tags()
     search_results = None
+    if tag:
+            search_results = search_photos_by_tags(tag)
     if request.method == 'POST':
         tags = request.form['tags']
         search_results = search_photos_by_tags(tags)
-    print('fffff', search_results)
     top_users = top_contributors()
-    print(top_users)
+    print('mmmmm', tag, search_results)
     album_users, album_photos = get_all_albums()
     if 'user_email' in session:
         email = session['user_email']
-        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results)
-    return render_template('index.html', album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results)
+        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results, popular_tags=popular_tags)
+    return render_template('index.html', album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results, popular_tags=popular_tags)
 
 @app.route('/register.html', methods=['GET'])
 def register_page():
@@ -311,7 +314,6 @@ def add_comment():
     email = request.form.get('email')
     user_id =  User.query.filter_by(email=email).first().userId
     text = request.form.get('text')
-    print('aaaaa', photo_id)
     new_comment = Comments(photoId=photo_id, userId=user_id, text=text, date=datetime.date.today())
     db.session.add(new_comment)
     db.session.commit()
@@ -586,7 +588,6 @@ def search_photos_by_tags(tags):
     )
 
     photos = photos_query.all()
-    print('ggggg',photos)
     photo_results = []
     for photo in photos:
         album_path = Path('albums') / str(photo.albumId)
@@ -611,6 +612,19 @@ def search_photos_by_tags(tags):
         photo_results.append((photo.photoId, photo_path, photo_tags, photo, like_count, comments, likers))
 
     return photo_results
+
+def get_most_popular_tags(limit=10):
+    popular_tags = (
+        db.session.query(Tags.description, db.func.count(Tags.photoId).label("count"))
+        .group_by(Tags.description)
+        .order_by(db.desc("count"))
+        .limit(limit)
+    ).all()
+
+    popular_tags = [t[0] for t in popular_tags]
+
+    return popular_tags
+
 
 
 if __name__ == '__main__':
