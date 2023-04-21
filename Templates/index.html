@@ -82,14 +82,18 @@
 
         <div class="search">
             <h3>Search for Photos:</h3>
-            <form action="search" method="POST">
-                <input name="searchvalue" type="text" id="searchvalue" placeholder="Search for a hashtag" required="required" />
-                <input name="submit" type="submit" value="Search" />
+            <form method="POST" action="{{url_for('home_page')}}">
+                <div class="mb-3">
+                    <label for="tags" class="form-label">Enter tags:</label>
+                    <input type="text" class="form-control" id="tags" name="tags" placeholder="nature beach">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
             </form>
 
-            <form action="popular" method="POST">
-                <input name="submit" type="submit" value="Search most popular" />
-            </form>
+            <!-- <form action="popular" method="POST">
+                <input name="submit" type="submit" value="Search most popular" />1
+            </form> -->
+
         </div>
 
         <div class="login">
@@ -130,6 +134,66 @@
             </form>
         </div>
 
+        {% if search_results %}
+        <h3>Search Results</h3>
+        <div class="search-results">
+            <ul style="margin-bottom: 20px;">
+                {% for photo in search_results %}
+                <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px" alt="">
+                    <ul style="padding:0px;">
+                        <li>
+                            Caption: {{photo[3].caption}}
+                        </li>
+                        <li>
+                            Upload date: {{photo[3].date}}
+                        </li>
+                        <li>
+                            Tags:
+                            {% for tag in photo[2] %}
+                                {{tag}}
+                            {% endfor %}
+                        </li>
+                        <li>
+                            Like count: {{ photo[4] }}
+                            {% if email %}
+                                <form action="{{ url_for('like_photo') }}" method="post">
+                                    <input type="hidden" name="photo_id" value="{{ photo[3].photoId }}" />
+                                    <input type="hidden" name="email" value="{{ email }}" />
+                                    <button type="submit">Like photo</button>
+                                </form>
+                            {% endif %}
+                        </li>
+                        <li>
+                            People who liked the photo:
+                            <ul>
+                                {% for user_like in photo[6] %}
+                                    <li>{{user_like.firstName}} {{user_like.lastName}}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        <li>
+                            Comments:
+                            <ul>
+                                {% for comment, author in photo[5] %}
+                                    <li>{{ author.firstName }} {{ author.lastName }}: {{ comment.text }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% if email %}
+                                <form action="{{ url_for('add_comment') }}" method="post">
+                                    <input type="hidden" name="photo_id" value="{{ photo[3].photoId }}" />
+                                    <input type="hidden" name="email" value="{{ email }}" />
+                                    <input type="text" name="text" placeholder="Add a comment" />
+                                    <button type="submit">Post Comment</button>
+                                </form>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <div class="photo-feed">
             <h3>Album feed:</h3>
             {% if album_users %}
@@ -157,7 +221,7 @@
                                     {% if email %}
                                         <form action="{{ url_for('like_photo') }}" method="post">
                                             <input type="hidden" name="photo_id" value="{{ photo[3].photoId }}" />
-                                            <input type="hidden" name="user_id" value="{{ user.userId }}" />
+                                            <input type="hidden" name="email" value="{{ email }}" />
                                             <button type="submit">Like photo</button>
                                         </form>
                                     {% endif %}
@@ -165,8 +229,8 @@
                                 <li>
                                     People who liked the photo:
                                     <ul>
-                                        {% for user in photo[6] %}
-                                            {{user.firstName}} {{user.lastName}}
+                                        {% for user_like in photo[6] %}
+                                            <li>{{user_like.firstName}} {{user_like.lastName}}</li>
                                         {% endfor %}
                                     </ul>
                                 </li>
@@ -180,7 +244,7 @@
                                     {% if email %}
                                         <form action="{{ url_for('add_comment') }}" method="post">
                                             <input type="hidden" name="photo_id" value="{{ photo[3].photoId }}" />
-                                            <input type="hidden" name="user_id" value="{{ user.userId }}" />
+                                            <input type="hidden" name="email" value="{{ email }}" />
                                             <input type="text" name="text" placeholder="Add a comment" />
                                             <button type="submit">Post Comment</button>
                                         </form>

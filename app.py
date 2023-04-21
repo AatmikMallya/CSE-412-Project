@@ -80,19 +80,25 @@ class Comments(db.Model):
     text = db.Column(db.Text)
     date = db.Column(db.Date)
 
+
 #######################################
 #  Render html pages
 #######################################
-@app.route('/')
-@app.route('/index.html')
+@app.route('/', methods=['GET','POST'])
+@app.route('/index.html', methods=['GET','POST'])
 def home_page():
+    search_results = None
+    if request.method == 'POST':
+        tags = request.form['tags']
+        search_results = search_photos_by_tags(tags)
+    print('fffff', search_results)
     top_users = top_contributors()
     print(top_users)
     album_users, album_photos = get_all_albums()
     if 'user_email' in session:
         email = session['user_email']
-        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users)
-    return render_template('index.html', album_users=album_users, album_photos=album_photos, top_users=top_users)
+        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results)
+    return render_template('index.html', album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results)
 
 @app.route('/register.html', methods=['GET'])
 def register_page():
@@ -283,8 +289,8 @@ def delete_photo(album_id, photo_id):
 @app.route('/like_photo', methods=['POST'])
 def like_photo():
     photo_id = request.form.get('photo_id')
-    user_id = request.form.get('user_id')
-
+    email = request.form.get('email')
+    user_id =  User.query.filter_by(email=email).first().userId
     like = Likes.query.filter_by(photoId=photo_id, userId=user_id).first()
 
     if like:
@@ -302,7 +308,8 @@ def like_photo():
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
     photo_id = request.form.get('photo_id')
-    user_id = request.form.get('user_id')
+    email = request.form.get('email')
+    user_id =  User.query.filter_by(email=email).first().userId
     text = request.form.get('text')
     print('aaaaa', photo_id)
     new_comment = Comments(photoId=photo_id, userId=user_id, text=text, date=datetime.date.today())
@@ -560,6 +567,51 @@ def top_contributors():
     order_by((func.count(Photos.photoId) + func.count(Comments.commentId)).desc()).\
     limit(10).all()
     return users
+
+
+def search_photos_by_tags(tags):
+    tag_list = tags.split()
+
+    subquery = (
+        db.session.query(Tags.photoId)
+        .filter(Tags.description.in_(tag_list))
+        .group_by(Tags.photoId)
+        .having(db.func.count(Tags.photoId) == len(tag_list))
+        .subquery()
+    )
+
+    photos_query = (
+        db.session.query(Photos)
+        .join(subquery, subquery.c.photoId == Photos.photoId)
+    )
+
+    photos = photos_query.all()
+    print('ggggg',photos)
+    photo_results = []
+    for photo in photos:
+        album_path = Path('albums') / str(photo.albumId)
+        photo_path = None
+        for file_path in album_path.glob(f'{photo.photoId}*'):
+            if file_path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
+                photo_path = str(file_path.relative_to('albums'))
+                photo_path = photo_path.replace('//', '/')
+                photo_path = photo_path.replace('\\\\', '/')
+                break
+
+        photo_tags = [tag.description for tag in photo.tags]
+        like_count = Likes.query.filter_by(photoId=photo.photoId).count()
+        likes = Likes.query.filter_by(photoId=photo.photoId).all()
+        likers = [User.query.filter_by(userId=like.userId).first() for like in likes]
+
+        comments = []
+        for comment in Comments.query.filter_by(photoId=photo.photoId).all():
+            author = User.query.filter_by(userId=comment.userId).first()
+            comments.append((comment, author))
+
+        photo_results.append((photo.photoId, photo_path, photo_tags, photo, like_count, comments, likers))
+
+    return photo_results
+
 
 if __name__ == '__main__':
     app.run(debug=True)
