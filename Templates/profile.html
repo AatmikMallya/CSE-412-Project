@@ -54,9 +54,19 @@
                                 Likes: {{ photo[4] }}
                             </li>
                             <li>
-                                Comments: NOT IMPLEMENTED
+                                People who liked the photo:
                                 <ul>
-                                    <li>comment1</li>
+                                    {% for user in photo[6] %}
+                                        {{user.firstName}} {{user.lastName}}
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            <li>
+                                Comments:
+                                <ul>
+                                    {% for comment, author in photo[5] %}
+                                        <li>{{ author.firstName }} {{ author.lastName }}: {{ comment.text }}</li>
+                                    {% endfor %}
                                 </ul>
                             </li>
                             <li>
