@@ -57,6 +57,7 @@ class Albums(db.Model):
     photos = db.relationship('Photos', backref='album', cascade='all, delete-orphan', primaryjoin="Albums.albumId == Photos.albumId")
 
 class Photos(db.Model):
+    __tablename__ = 'photos'
     photoId = db.Column(db.Integer, primary_key=True, autoincrement=True)
     albumId = db.Column(db.Integer, db.ForeignKey('albums.albumId'), nullable=False)
     userId = db.Column(db.Integer, db.ForeignKey('Users.userId'), nullable=False)
@@ -68,15 +69,15 @@ class Tags(db.Model):
     photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId', ondelete='CASCADE'), primary_key=True)
     description = db.Column(db.String(255))
 
-class Like(db.Model):
-    photoId = db.Column(db.Integer, db.ForeignKey('photo.photoId', ondelete='CASCADE'), primary_key=True)
-    userId = db.Column(db.Integer, db.ForeignKey('user.userId'), primary_key=True)
+class Likes(db.Model):
+    photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId', ondelete='CASCADE'), primary_key=True)
+    userId = db.Column(db.Integer, db.ForeignKey('Users.userId'), primary_key=True)
 
 
-class Comment(db.Model):
+class Comments(db.Model):
     commentId = db.Column(db.Integer, primary_key=True)
-    photoId = db.Column(db.Integer, db.ForeignKey('photo.photoId', ondelete='CASCADE'))
-    userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
+    photoId = db.Column(db.Integer, db.ForeignKey('photos.photoId', ondelete='CASCADE'))
+    userId = db.Column(db.Integer, db.ForeignKey('Users.userId'))
     text = db.Column(db.Text)
     date = db.Column(db.Date)
 
@@ -87,6 +88,9 @@ class Comment(db.Model):
 @app.route('/index.html')
 def home_page():
     album_users, album_photos = get_all_albums()
+    if 'user_email' in session:
+        email = session['user_email']
+        return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos)
     return render_template('index.html', album_users=album_users, album_photos=album_photos)
 
 @app.route('/register.html', methods=['GET'])
@@ -159,8 +163,8 @@ def login():
             flash('Incorrect password', 'error')  # Flash error message
     else:
         flash('User not found', 'error')  # Flash error message
-    
-    return render_template('index.html', email=email)
+    session['user_email'] = email
+    return redirect(url_for('home_page', email=email))
 
 # Logout route
 @app.route('/logout')
@@ -284,6 +288,24 @@ def delete_photo(album_id, photo_id):
     flash('Photo deleted successfully', 'success')
     return redirect(url_for('profile_page', email=email) )
 
+@app.route('/like_photo', methods=['POST'])
+def like_photo():
+    photo_id = request.form.get('photo_id')
+    user_id = request.form.get('user_id')
+
+    like = Likes.query.filter_by(photoId=photo_id, userId=user_id).first()
+
+    if like:
+        # Unlike the photo
+        db.session.delete(like)
+    else:
+        # Like the photo
+        new_like = Likes(photoId=photo_id, userId=user_id)
+        db.session.add(new_like)
+
+    db.session.commit()
+
+    return redirect('index.html')
 
 # Add friends to the databse
 @app.route('/add_friend', methods=['POST'])
@@ -323,7 +345,8 @@ def get_user_albums(email):
                 if photo:
                     for tag in photo.tags:
                         photo_tags.append(tag.description)
-                photos.append((photo_id, photo_path, photo_tags, photo))
+                like_count = Likes.query.filter_by(photoId=photo_id).count()
+                photos.append((photo_id, photo_path, photo_tags, photo, like_count))
         album_photos[album.albumId] = photos
 
     return albums, album_photos
@@ -346,7 +369,8 @@ def get_all_albums():
                 if photo:
                     for tag in Tags.query.filter_by(photoId=photo.photoId).all():
                         photo_tags.append(tag.description)
-                photos.append((photo_id, photo_path, photo_tags, photo))
+                like_count = Likes.query.filter_by(photoId=photo_id).count()
+                photos.append((photo_id, photo_path, photo_tags, photo, like_count))
         album_photos[album.albumId] = photos
     print(album_users)
     return album_users, album_photos
