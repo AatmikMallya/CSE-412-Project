@@ -104,7 +104,9 @@ def home_page(tag=None):
 
 @app.route('/register.html', methods=['GET'])
 def register_page():
-    return render_template('register.html')
+    min_dob = datetime.datetime.now() - datetime.timedelta(days=13 * 365)
+    min_dob_str = min_dob.date().isoformat()
+    return render_template('register.html', min_dob=min_dob_str)
 
 @app.route('/profile.html', methods=['GET'])
 def profile_page():
@@ -382,6 +384,8 @@ def get_top_tags_for_user(user_id, limit=5):
     return [tag for tag, count in top_tags]
 
 def get_recommended_photos(user_id, top_tags):
+    if not top_tags:  # Check if top_tags is empty
+        return []
     # Use the updated SQL query with GROUP_CONCAT
     query = text("""
     SELECT 
