@@ -90,10 +90,12 @@ def home_page(tag=None):
     tag = request.args.get('tag')
     search_results = None
     if tag:
-            search_results = search_photos_by_tags(tag)
+        search_results = search_photos_by_tags(tag, False)
     if request.method == 'POST':
         tags = request.form['tags']
-        search_results = search_photos_by_tags(tags)
+        search_my_photos = 'search_mine' in request.form
+        search_results = search_photos_by_tags(tags, search_my_photos, email=session['user_email'])
+        # search_results = search_photos_by_tags(tags)
     popular_tags = get_most_popular_tags()
     top_users = top_contributors()
     album_users, album_photos = get_all_albums()
@@ -562,7 +564,7 @@ def top_contributors():
     return users
 
 
-def search_photos_by_tags(tags):
+def search_photos_by_tags(tags, search_my_photos, email=None):
     tag_list = tags.split()
 
     subquery = (
@@ -577,6 +579,11 @@ def search_photos_by_tags(tags):
         db.session.query(Photos)
         .join(subquery, subquery.c.photoId == Photos.photoId)
     )
+
+    if search_my_photos:
+        user = User.query.filter_by(email=email).first()
+        photos_query = photos_query.filter(Photos.userId == user.userId)
+
 
     photos = photos_query.all()
     photo_results = []
