@@ -99,6 +99,8 @@ def home_page(tag=None):
     popular_tags = get_most_popular_tags()
     top_users = top_contributors()
     album_users, album_photos = get_all_albums()
+    print('ppppp',album_photos)
+    # print('ppppp',[p[2] for p in album_photos])
     if 'user_email' in session:
         email = session['user_email']
         return render_template('index.html', email=email, album_users=album_users, album_photos=album_photos, top_users=top_users, search_results=search_results, popular_tags=popular_tags)
@@ -319,6 +321,31 @@ def delete_photo(album_id, photo_id):
     db.session.commit()
     flash('Photo deleted successfully', 'success')
     return redirect(url_for('profile_page', email=email) )
+
+@app.route('/delete_album/<int:album_id>', methods=['POST'])
+def delete_album(album_id):
+    email = request.form.get('email')
+    album = Albums.query.get_or_404(album_id)
+    photos = Photos.query.filter_by(albumId=album_id).all()
+
+    for photo in photos:
+        # Delete photo tags
+        Tags.query.filter_by(photoId=photo.photoId).delete()
+        # Delete photo likes
+        Likes.query.filter_by(photoId=photo.photoId).delete()
+        # Delete photo comments
+        Comments.query.filter_by(photoId=photo.photoId).delete()
+
+        # Delete photo from the database
+        db.session.delete(photo)
+
+    # Delete the album from the database
+    db.session.delete(album)
+    db.session.commit()
+
+    # Redirect to a page after successful deletion (you can change this to any route you prefer)
+    return redirect(url_for('profile_page', email=email) )
+
 
 @app.route('/like_photo', methods=['POST'])
 def like_photo():

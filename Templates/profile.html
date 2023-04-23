@@ -56,6 +56,11 @@
             {% for album in albums %}
                 <li>{{ album.name }}: uploaded by {{ email }}</a></li>
                 <ul style="margin-bottom: 20px;">
+                    <form action="{{ url_for('delete_album', album_id=album.albumId) }}" method="post">
+                        <input type="hidden" name="_method" value="delete">
+                        <input type="hidden" name="email" value="{{ email }}" />
+                        <button type="submit">Delete album</button>
+                    </form>
                     {% for photo in album_photos[album.albumId] %}
                     <li><img src="{{ url_for('static', filename=photo[1].replace('\\','/')) }}" width="200px" alt="">
                         <ul style="padding:0px;">
