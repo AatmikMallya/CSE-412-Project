@@ -83,7 +83,17 @@ VALUES
 (17, 'James', 'Smallwood', 'deborah2011@hotmail.com', '1970-09-19', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeHa.ZRlXe2Omio3KKL1vl/B5eyHQeWWy', 'male', 'Philadelphia'),
 (18, 'Judy', 'Ochoa', 'moses.leann@gmail.com', '1957-12-11', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAe1l5pnRfug7SR2EFxD3b3gdbIqAFGPUK', 'female', 'Boston'),
 (19, 'George', 'Huffman', 'keyshawn1975@yahoo.com', '1990-05-12', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAe6PGL7jgRh3SIC76KQ9RcCI1Jg9nTtpu', 'male', 'Champaign'),
-(20, 'Tyrone', 'Cordero', 'abbey.welc2@yahoo.com', '1978-10-07', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAehiEts71mkjufuUpRurLOoLY3sk/WvPa', 'male', 'Sacramento');
+(20, 'Tyrone', 'Cordero', 'abbey.welc2@yahoo.com', '1978-10-07', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAehiEts71mkjufuUpRurLOoLY3sk/WvPa', 'male', 'Sacramento'),
+(21, 'Ava', 'Paterson', 'ava1@email.com', '1998-08-23', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Tulsa'),
+(22, 'Caroline', 'Terry', 'terryc@email.com', '2010-02-12', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Reno'),
+(23, 'Dylan', 'Davidson', 'dd@email.com', '2003-12-24', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'male', 'Virginia Beach'),
+(24, 'Caroline', 'Jones', 'jonesc@email.com', '2001-01-01', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Charlotte'),
+(25, 'Deirdre', 'Alsop', 'deirdre342@email.com', '2005-02-24', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'male', 'St. Paul'),
+(26, 'Anne', 'Berry', 'anneb@email.com', '2009-11-21', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'San Bernardino'),
+(27, 'Ruth', 'Peake', 'Ruth421@email.com', '1985-10-06', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'male', 'Oakland'),
+(28, 'Jack', 'Metcalfe', 'jackmetcalfe@email.com', '1999-04-02', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'male', 'San Antonio'),
+(29, 'Lisa', 'Wilkins', 'lwilkins@email.com', '1987-06-27', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Arlington'),
+(30, 'Abigail', 'Quinn', 'quiiin@yahoo.com', '2003-07-04', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Akron'),
 
 INSERT INTO Friends (user1Id, user2Id, date)
 VALUES
@@ -98,7 +108,20 @@ VALUES
 (8, 11, '2023-03-20'),
 (9, 15, '2023-04-23'),
 (10, 19, '2023-06-01'),
-(20, 10, '2023-03-18');
+(20, 10, '2023-03-18'),
+(21, 22, '2023-01-01'),
+(21, 23, '2023-02-15'),
+(22, 23, '2023-03-20'),
+(21, 24, '2023-04-20'),
+(22, 25, '2023-05-01'),
+(21, 26, '2023-04-22'),
+(26, 30, '2023-04-23'),
+(26, 27, '2023-02-15'),
+(28, 21, '2023-03-20'),
+(29, 25, '2023-04-23'),
+(20, 29, '2023-06-01'),
+(20, 30, '2023-03-18');
+
 
 INSERT INTO Albums (albumId, userId, name, creationDate)
 VALUES
@@ -112,7 +135,17 @@ VALUES
 (8, 4, 'user4album2', '2023-04-20'),
 (9, 5, 'user5album1', '2023-04-20'),
 (10, 6, 'user6album1', '2023-04-20'),
-(11, 6, 'user6album2', '2023-04-20');
+(11, 6, 'user6album2', '2023-04-20'),
+(12, 21, 'trips', '2023-04-20'),
+(13, 22, 'school', '2023-04-20'),
+(14, 23, 'work', '2023-04-20'),
+(15, 24, 'mems', '2023-04-20'),
+(16, 25, 'old', '2023-04-20'),
+(17, 26, 'recent', '2023-04-20'),
+(18, 27, 'hidden', '2023-04-20'),
+(19, 28, 'vacations', '2023-04-20'),
+(20, 29, 'stuff', '2023-04-20'),
+(21, 30, 'spam', '2023-04-20');
 
 INSERT INTO Photos (photoId, albumId, userId, date, caption)
 VALUES
@@ -133,7 +166,17 @@ VALUES
 (15, 9, 5, '2023-04-20', 'Test caption 15'),
 (16, 10, 6, '2023-04-20', 'Test caption 16'),
 (17, 11, 6, '2023-04-20', 'Test caption 17'),
-(18, 11, 6, '2023-04-20', 'Test caption 18');
+(18, 11, 6, '2023-04-20', 'Test caption 18'),
+(19, 12, 21, '2023-04-20', 'caption'),
+(20, 13, 22, '2023-04-20', 'had to'),
+(21, 14, 23, '2023-04-20', 'Food!'),
+(22, 15, 24, '2023-04-20', 'idk felt cute'),
+(23, 16, 25, '2023-04-20', 'Gym grind'),
+(24, 17, 26, '2023-04-20', 'Vacation'),
+(25, 18, 27, '2023-04-20', 'When you'),
+(26, 19, 28, '2023-04-20', 'This looks weird'),
+(27, 20, 29, '2023-04-20', 'Found this'),
+(28, 21, 30, '2023-04-20', 'New Job!');
 
 INSERT INTO Tags (photoId, description)
 VALUES
@@ -190,7 +233,17 @@ VALUES
 (17, 'database'),
 (18, 'testing'),
 (18, 'popular'),
-(18, 'mysql');
+(18, 'mysql'),
+(19, 'like'),
+(20, 'haha'),
+(21, '247grind'),
+(22, 'food'),
+(23, 'italy'),
+(24, 'meme'),
+(25, 'anime'),
+(26, 'hmm'),
+(27, 'morefood'),
+(28, 'city');
 
 INSERT INTO Likes(photoId, userId)
 VALUES
@@ -292,4 +345,14 @@ VALUES
 (45,18,2,'this is test comment #45','2023-04-20'),
 (46,18,3,'this is test comment #46','2023-04-20'),
 (47,18,4,'this is test comment #47','2023-04-20'),
-(48,18,5,'this is test comment #48','2023-04-20');
+(48,18,5,'this is test comment #48','2023-04-20'),
+(49,19,30,'hi','2023-04-20'),
+(50,20,29,'Great Photo!','2023-04-20'),
+(51,21,28,'Yeah','2023-04-20'),
+(52,22,27,'Need more','2023-04-20'),
+(53,23,26,'Nice','2023-04-20'),
+(54,24,25,'Nice','2023-04-20'),
+(55,25,24,'Cool','2023-04-20'),
+(56,26,23,'Jaja','2023-04-20'),
+(57,27,22,'Haha','2023-04-20'),
+(58,28,21,'Si','2023-04-20');
