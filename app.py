@@ -508,8 +508,13 @@ def get_user_albums(email):
                 photo_tags = []
                 photo = Photos.query.filter_by(photoId=photo_id, albumId=album.albumId).first()
                 if photo:
-                    for tag in photo.tags:
+                    sql_query = text("SELECT description FROM tags WHERE photoId = :photo_id")
+                    result_proxy = db.session.execute(sql_query, {'photo_id': photo_id})
+                    tags = result_proxy.fetchall()
+                    for tag in tags:
                         photo_tags.append(tag.description)
+                photo_tags = ', '.join(photo_tags)
+                print('oooooooo',photo_tags)
                 like_count = Likes.query.filter_by(photoId=photo_id).count()
                 likes = Likes.query.filter_by(photoId=photo_id).all()
                 likers = [User.query.filter_by(userId=like.userId).first() for like in likes]
@@ -539,8 +544,14 @@ def get_all_albums():
                 photo_tags = []
                 photo = Photos.query.filter_by(photoId=photo_id, albumId=album.albumId).first()
                 if photo:
-                    for tag in Tags.query.filter_by(photoId=photo.photoId).all():
+                    # tags = Tags.query.filter_by(photoId=photo.photoId)
+                    sql_query = text("SELECT description FROM tags WHERE photoId = :photo_id")
+                    result_proxy = db.session.execute(sql_query, {'photo_id': photo_id})
+                    tags = result_proxy.fetchall()
+                    for tag in tags:
                         photo_tags.append(tag.description)
+                photo_tags = ', '.join(photo_tags)
+                print(photo_tags)
                 like_count = Likes.query.filter_by(photoId=photo_id).count()
                 likes = Likes.query.filter_by(photoId=photo_id).all()
                 likers = [User.query.filter_by(userId=like.userId).first() for like in likes]
@@ -624,7 +635,13 @@ def search_photos_by_tags(tags, search_my_photos, email=None):
                 photo_path = photo_path.replace('\\\\', '/')
                 break
 
-        photo_tags = [tag.description for tag in photo.tags]
+        photo_tags = []
+        sql_query = text("SELECT description FROM tags WHERE photoId = :photo_id")
+        result_proxy = db.session.execute(sql_query, {'photo_id': photo.photoId})
+        tags = result_proxy.fetchall()
+        for tag in tags:
+            photo_tags.append(tag.description)
+        photo_tags = ', '.join(photo_tags)
         like_count = Likes.query.filter_by(photoId=photo.photoId).count()
         likes = Likes.query.filter_by(photoId=photo.photoId).all()
         likers = [User.query.filter_by(userId=like.userId).first() for like in likes]
