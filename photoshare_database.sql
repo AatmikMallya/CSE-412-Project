@@ -69,7 +69,21 @@ VALUES
 (3, 'Bob', 'Smith', 'bobsmith@email.com', '1985-07-20', '$2b$12$ZIruXTIE8Qutt4P3/B3DueGlwnWNg8KGy2ZW1/SZUuePOfFz0p.ea', 'male', 'Chicago'),
 (4, 'Evan', 'Paul', 'epaul@email.com', '2000-05-01', '$2b$12$Prym.bIdlKfHWDKJ9v/VgOOTrH6cLRoYrTMtPlbuqQso/xG8e7Xr.', 'male', 'Phoenix'),
 (5, 'Chris', 'Field', 'cfield@email.com', '2005-03-15', '$2b$12$IK4.kMJzxoA6UvvHe/RN..uS5bBePHUfe1YCWY5QZA3K0ZNVKvZyq', 'male', 'Sandwich'),
-(6, 'Joe', 'Smith', 'joesmith@email.com', '2009-09-20', '$2b$12$qu7q2QlVefTe7gTlBqqcQ.3N80rwyx.Asy8CAZqzT1lx0ku.nJCWS', 'male', 'Seattle');
+(6, 'Joe', 'Smith', 'joesmith@email.com', '2009-09-20', '$2b$12$qu7q2QlVefTe7gTlBqqcQ.3N80rwyx.Asy8CAZqzT1lx0ku.nJCWS', 'male', 'Seattle'),
+(7, 'Kimberly', 'Griffith', 'caleigh.koc2@hotmail.com', '1992-01-21', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeAAO7.5O1XRSVbRTG5F9x/Jt7MRiJirC', 'female', 'Chicago'),
+(8, 'Mary', 'Lanigan', 'pink1995@yahoo.com', '1995-02-15', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAev7rSu5Am/x0aMH1ecxpLsYa5IauTRhS', 'female', 'Seal Beach'),
+(9, 'Karen', 'Brown', 'aliya.yos1@gmail.com', '1987-06-27', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeyeiz7jo10AThhvc4HU0XvFDAhL7S2eu', 'female', 'Washington'),
+(10, 'Elvis', 'Ladner', 'erika_brau0@yahoo.com', '1983-11-04', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeF7GS940JIBfApm.5NSCJ.mKb.avhcLy', 'male', 'Omaha'),
+(11, 'Michael', 'Ramos', 'alice_colli@yahoo.com', '1994-11-26', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAejNZNUPGQAZeYFqm1CbuRSr2PMg7ihUC', 'male', 'Sandusky'),
+(12, 'Christopher', 'Neubauer', 'shyanne2002@yahoo.com', '1982-05-27', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAehOSf5UpxXv7yDa3EGcEFk2pL9eK4q.i', 'male', 'Los Alamos'),
+(13, 'Daisy', 'Monger', 'lourdes2007@yahoo.com', '1985-07-13', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAebzloUzmSg.te71mwv3TvDz662BX/2WG', 'female', 'Wausau'),
+(14, 'Jill', 'Plumb', 'loma2017@gmail.com', '1964-07-20', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeEmbg1xLhA.kAm5RwBJAi7ZcnetprdmS', 'female', 'Mellette'),
+(15, 'Judith', 'Grimsley', 'juliet1998@hotmail.com', '1990-05-10', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeDp7IxXijk2IBPPm8o1QiLyCU/y7tFsO', 'female', 'Dewitt'),
+(16, 'Donald', 'Devine', 'luisa2001@yahoo.com', '1998-11-16', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAewDrlbW8wOXYmMnFx8UX8dpIIVffdgtW', 'male', 'New Martinsville'),
+(17, 'James', 'Smallwood', 'deborah2011@hotmail.com', '1970-09-19', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAeHa.ZRlXe2Omio3KKL1vl/B5eyHQeWWy', 'male', 'Philadelphia'),
+(18, 'Judy', 'Ochoa', 'moses.leann@gmail.com', '1957-12-11', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAe1l5pnRfug7SR2EFxD3b3gdbIqAFGPUK', 'female', 'Boston'),
+(19, 'George', 'Huffman', 'keyshawn1975@yahoo.com', '1990-05-12', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAe6PGL7jgRh3SIC76KQ9RcCI1Jg9nTtpu', 'male', 'Champaign'),
+(20, 'Tyrone', 'Cordero', 'abbey.welc2@yahoo.com', '1978-10-07', '$2b$12$Q6fEDU6RrK6rOy6Cq3zqAehiEts71mkjufuUpRurLOoLY3sk/WvPa', 'male', 'Sacramento');
 
 INSERT INTO Friends (user1Id, user2Id, date)
 VALUES
@@ -77,7 +91,14 @@ VALUES
 (1, 3, '2023-02-15'),
 (2, 3, '2023-03-20'),
 (1, 4, '2023-04-20'),
-(2, 5, '2023-05-01');
+(2, 5, '2023-05-01'),
+(1, 6, '2023-04-22'),
+(6, 12, '2023-04-23'),
+(6, 16, '2023-02-15'),
+(8, 11, '2023-03-20'),
+(9, 15, '2023-04-23'),
+(10, 19, '2023-06-01'),
+(20, 10, '2023-03-18');
 
 INSERT INTO Albums (albumId, userId, name, creationDate)
 VALUES
