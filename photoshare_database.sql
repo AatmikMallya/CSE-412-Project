@@ -93,7 +93,7 @@ VALUES
 (27, 'Ruth', 'Peake', 'Ruth421@email.com', '1985-10-06', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'male', 'Oakland'),
 (28, 'Jack', 'Metcalfe', 'jackmetcalfe@email.com', '1999-04-02', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'male', 'San Antonio'),
 (29, 'Lisa', 'Wilkins', 'lwilkins@email.com', '1987-06-27', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Arlington'),
-(30, 'Abigail', 'Quinn', 'quiiin@yahoo.com', '2003-07-04', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Akron'),
+(30, 'Abigail', 'Quinn', 'quiiin@yahoo.com', '2003-07-04', '$2b$12$EQodrXwyfo/5y/LKUedoOOVYMLr1OofuzIan933g2DYeEiANEyklO', 'female', 'Akron');
 
 INSERT INTO Friends (user1Id, user2Id, date)
 VALUES
